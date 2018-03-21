@@ -30,7 +30,9 @@
 #include "Cpu.h"
 #include "Events.h"
 #include "rtos_main_task.h"
-#include "os_tasks.h"
+#include "generator_tasks.h"
+#include "scheduler_task.h"
+#include "monitor_task.h"
 
 #ifdef __cplusplus
 extern "C" {

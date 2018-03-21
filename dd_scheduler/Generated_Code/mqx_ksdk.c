@@ -7,7 +7,7 @@
 **     Version     : Component 1.2.0, Driver 01.00, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-17, 13:08, # CodeGen: 1
+**     Date/Time   : 2018-03-20, 19:27, # CodeGen: 7
 **
 **     Copyright : 1997 - 2015 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -56,9 +56,13 @@
 
 /* Application specific header file */
 #include "rtos_main_task.h"
-#include "os_tasks.h"
+#include "generator_tasks.h"
+#include "scheduler_task.h"
+#include "monitor_task.h"
 #include "MainTask.h"
-#include "TaskGenerator.h"
+#include "Generator.h"
+#include "Scheduler.h"
+#include "Monitor.h"
 extern void * kernel_data_prv;
 #if MQXCFG_PREALLOCATED_SYSTEM_STACKS
 extern uint8_t mqx_interrupt_stack[];
@@ -82,13 +86,35 @@ const TASK_TEMPLATE_STRUCT MQX_template_list[] =
     /* Task parameter                 */  (uint32_t)(NULL),
     /* Task time slice                */  (uint32_t)(0U)
   },       
-  /* Task: TaskGenerator */
+  /* Task: Generator */
   {
-    /* Task number                    */  TASKGENERATOR_TASK,
-    /* Entry point                    */  (TASK_FPTR)TaskGenerator_task,
-    /* Stack size                     */  TASKGENERATOR_TASK_STACK_SIZE,
-    /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(TASKGENERATOR_TASK_PRIORITY)),
-    /* Task name                      */  TASKGENERATOR_TASK_NAME,
+    /* Task number                    */  GENERATOR_TASK,
+    /* Entry point                    */  (TASK_FPTR)Generator_task,
+    /* Stack size                     */  GENERATOR_TASK_STACK_SIZE,
+    /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(GENERATOR_TASK_PRIORITY)),
+    /* Task name                      */  GENERATOR_TASK_NAME,
+    /* Task attributes                */  (0),
+    /* Task parameter                 */  (uint32_t)(NULL),
+    /* Task time slice                */  (uint32_t)(0U)
+  },       
+  /* Task: Scheduler */
+  {
+    /* Task number                    */  SCHEDULER_TASK,
+    /* Entry point                    */  (TASK_FPTR)Scheduler_task,
+    /* Stack size                     */  SCHEDULER_TASK_STACK_SIZE,
+    /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(SCHEDULER_TASK_PRIORITY)),
+    /* Task name                      */  SCHEDULER_TASK_NAME,
+    /* Task attributes                */  (0),
+    /* Task parameter                 */  (uint32_t)(NULL),
+    /* Task time slice                */  (uint32_t)(0U)
+  },       
+  /* Task: Monitor */
+  {
+    /* Task number                    */  MONITOR_TASK,
+    /* Entry point                    */  (TASK_FPTR)Monitor_task,
+    /* Stack size                     */  MONITOR_TASK_STACK_SIZE,
+    /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(MONITOR_TASK_PRIORITY)),
+    /* Task name                      */  MONITOR_TASK_NAME,
     /* Task attributes                */  (0),
     /* Task parameter                 */  (uint32_t)(NULL),
     /* Task time slice                */  (uint32_t)(0U)

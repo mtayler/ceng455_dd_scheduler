@@ -243,8 +243,14 @@ Module "osa1"      (component fsl_os_abstraction)
    - osa1_OSA_Init -Initializes the RTOS services.
    - osa1_OSA_Start -Starts the RTOS.
 
-Module "TaskGenerator" (component OS_Task)
-   - TaskGenerator_Init -Creates and starts a task.
+Module "Generator" (component OS_Task)
+   - Generator_Init -Creates and starts a task.
+
+Module "Scheduler" (component OS_Task)
+   - Scheduler_Init -Creates and starts a task.
+
+Module "Monitor"   (component OS_Task)
+   - Monitor_Init -Creates and starts a task.
 
 Module "Cpu"       (component MK22FN512LH12_4SDK)
    - Cpu_SystemInit -This method configures the oscillator (PLL) that is part of the microcontroller device. SystemInit is 

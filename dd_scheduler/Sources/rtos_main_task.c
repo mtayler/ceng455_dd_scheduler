@@ -30,7 +30,9 @@
 #include "Cpu.h"
 #include "Events.h"
 #include "rtos_main_task.h"
-#include "os_tasks.h"
+#include "generator_tasks.h"
+#include "scheduler_task.h"
+#include "monitor_task.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,7 +73,9 @@ void main_task(os_task_param_t task_init_data)
 				KLOG_MESSAGE_FUNCTIONS |
 				KLOG_NAME_FUNCTIONS, TRUE);
 
-  // Initialize scheduler, generator, and monitor tasks
+  // Initialize scheduler, generator tasks
+  _task_create(0, SCHEDULER_TASK, 0);
+  _task_create(0, GENERATOR_TASK, 0);
 
   _task_abort();
 }

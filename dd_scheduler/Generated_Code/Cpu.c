@@ -8,7 +8,7 @@
 **     Repository  : KSDK 1.3.0
 **     Datasheet   : K22P121M120SF7RM, Rev. 1, March 24, 2014
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-17, 13:08, # CodeGen: 1
+**     Date/Time   : 2018-03-20, 19:27, # CodeGen: 7
 **     Abstract    :
 **
 **     Settings    :
@@ -68,7 +68,9 @@
 #include "Cpu.h"
 #include "Events.h"
 #include "rtos_main_task.h"
-#include "os_tasks.h"
+#include "generator_tasks.h"
+#include "scheduler_task.h"
+#include "monitor_task.h"
 
 
 #ifdef __cplusplus
@@ -109,9 +111,9 @@ void Common_Init(void)
 void Components_Init(void)
 {
 
-  /*! TaskGenerator Auto initialization start */ 
-  (void)TaskGenerator_Init();
-  /*! TaskGenerator Auto initialization end */                       
+  /*! Monitor Auto initialization start */ 
+  (void)Monitor_Init();
+  /*! Monitor Auto initialization end */                       
 }
 #endif /* CPU_COMPONENTS_INIT */
 

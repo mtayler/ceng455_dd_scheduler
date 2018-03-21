@@ -180,10 +180,36 @@
       <EmptySection_DummyValue />
     </Events>
   </Bean>
-  <Bean name="TaskGenerator" type="OS_Task">
+  <Bean name="Generator" type="OS_Task">
     <Enabled v="Y" />
     <Properties>
-      <Name v="TaskGenerator" />
+      <Name v="Generator" />
+      <Component_version v="1.3.0" />
+    </Properties>
+    <Methods>
+      <EmptySection_DummyValue />
+    </Methods>
+    <Events>
+      <EmptySection_DummyValue />
+    </Events>
+  </Bean>
+  <Bean name="Scheduler" type="OS_Task">
+    <Enabled v="Y" />
+    <Properties>
+      <Name v="Scheduler" />
+      <Component_version v="1.3.0" />
+    </Properties>
+    <Methods>
+      <EmptySection_DummyValue />
+    </Methods>
+    <Events>
+      <EmptySection_DummyValue />
+    </Events>
+  </Bean>
+  <Bean name="Monitor" type="OS_Task">
+    <Enabled v="Y" />
+    <Properties>
+      <Name v="Monitor" />
       <Component_version v="1.3.0" />
     </Properties>
     <Methods>

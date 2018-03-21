@@ -38,7 +38,9 @@
 #include "uart1.h"
 #include "fsl_hwtimer1.h"
 #include "MainTask.h"
-#include "TaskGenerator.h"
+#include "Generator.h"
+#include "Scheduler.h"
+#include "Monitor.h"
 
 #ifdef __cplusplus
 extern "C" {
