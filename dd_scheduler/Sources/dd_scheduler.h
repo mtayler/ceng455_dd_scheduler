@@ -10,6 +10,32 @@
 
 #include <stdint.h>
 #include <mqx.h>
+#include <message.h>
+
+#define SCHEDULER_QID (3)
+
+// Set by scheduler task on initialization
+extern _pool_id scheduler_message_pool;
+
+enum REQUEST {
+	CreateTask = 0,
+	DeleteTask,
+	TaskList,
+	OverdueTaskList,
+};
+
+struct scheduler_request_message {
+	MESSAGE_HEADER_STRUCT HEADER;
+	REQUEST RQST;
+	uint32_t id; // template_index or task_id
+} SCHEDULER_RQST_MSG, * SCHEDULER_RQST_MSG_PTR;
+
+struct scheduler_response_message {
+	MESSAGE_HEADER_STRUCT HEADER;
+	bool response;
+	uint32_t result; // task_id or error
+	void * list; // pointer to start of (overdue) task list for list requests
+};
 
 // List of running tasks
 struct task_list {
@@ -64,7 +90,7 @@ uint32_t dd_delete(_task_id task_id);
  * 	task_list **list	Pointer to the pointer where the start of the task list
  * 							is assigned.
  * Returns:
- * 	uint32_t			0 if successful, otherwise an error
+ * 	uint32_t			MQX_OK if successful, otherwise an error
  *
  * Get a pointer to the start of the active task list
  */
@@ -77,7 +103,7 @@ uint32_t dd_active_list(struct task_list **list);
  * 	task_list **list	Pointer to the pointer where the start of the overdue
  * 							task list is assigned.
  * Returns:
- * 	uint32_t			0 if successful, otherwise an error
+ * 	uint32_t			MQX_OK if successful, otherwise an error
  *
  * Get a pointer to the start of the overdue task list
  */
