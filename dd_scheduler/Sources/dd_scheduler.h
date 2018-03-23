@@ -14,6 +14,8 @@
 
 #define SCHEDULER_QID (3)
 
+#define TIMEOUT (1000)
+
 // Set by scheduler task on initialization
 extern _pool_id scheduler_message_pool;
 
@@ -24,18 +26,18 @@ enum REQUEST {
 	OverdueTaskList,
 };
 
-struct scheduler_request_message {
+typedef struct scheduler_request_message {
 	MESSAGE_HEADER_STRUCT HEADER;
-	REQUEST RQST;
+	enum REQUEST RQST;
 	uint32_t id; // template_index or task_id
 } SCHEDULER_RQST_MSG, * SCHEDULER_RQST_MSG_PTR;
 
-struct scheduler_response_message {
+typedef struct scheduler_response_message {
 	MESSAGE_HEADER_STRUCT HEADER;
 	bool response;
 	uint32_t result; // task_id or error
 	void * list; // pointer to start of (overdue) task list for list requests
-};
+} SCHEDULER_RESP_MSG, * SCHEDULER_RESP_MSG_PTR;
 
 // List of running tasks
 struct task_list {

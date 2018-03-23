@@ -1,31 +1,31 @@
 /* ###################################################################
-**     Filename    : rtos_main_task.c
+**     Filename    : generator_tasks.c
 **     Project     : dd_scheduler
 **     Processor   : MK22FN512VLH12
 **     Component   : Events
 **     Version     : Driver 01.00
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-17, 13:08, # CodeGen: 1
+**     Date/Time   : 2018-03-20, 19:27, # CodeGen: 7
 **     Abstract    :
 **         This is user's event module.
 **         Put your event handler code here.
 **     Settings    :
 **     Contents    :
-**         main_task - void main_task(os_task_param_t task_init_data);
+**         Generator_task - void Generator_task(os_task_param_t task_init_data);
 **
 ** ###################################################################*/
 /*!
-** @file rtos_main_task.c
+** @file generator_tasks.c
 ** @version 01.00
 ** @brief
 **         This is user's event module.
 **         Put your event handler code here.
 */         
 /*!
-**  @addtogroup rtos_main_task_module rtos_main_task module documentation
+**  @addtogroup generator_tasks_module generator_tasks module documentation
 **  @{
 */         
-/* MODULE rtos_main_task */
+/* MODULE generator_tasks */
 
 #include "Cpu.h"
 #include "Events.h"
@@ -40,53 +40,45 @@ extern "C" {
 
 
 /* User includes (#include below this line is not maintained by Processor Expert) */
-#include <klog.h>
 #include <mqx.h>
-
-/* Initialization of Processor Expert components function prototype */
-#ifdef MainTask_PEX_RTOS_COMPONENTS_INIT
-extern void PEX_components_init(void);
-#endif 
 
 /*
 ** ===================================================================
-**     Callback    : main_task
+**     Callback    : Generator_task
 **     Description : Task function entry.
 **     Parameters  :
 **       task_init_data - OS task parameter
 **     Returns : Nothing
 ** ===================================================================
 */
-void main_task(os_task_param_t task_init_data)
+void Generator_task(os_task_param_t task_init_data)
 {
+  /* Write your local variable definition here */
 
-  /* Initialization of Processor Expert components (when some RTOS is active). DON'T REMOVE THIS CODE!!! */
-#ifdef MainTask_PEX_RTOS_COMPONENTS_INIT
-  PEX_components_init(); 
-#endif 
-  /* End of Processor Expert components initialization.  */
+#define PERIODIC_BASE (100)
 
-  // install exception ISR handler
-  _int_install_unexpected_isr();
+	struct release_times {
+		struct periodic_task * task;
+		time_t last_release;
+	} release_times;
+  
+#ifdef PEX_USE_RTOS
+  while (1) {
+#endif
+	  /* Write your code here ... */
+	  // for each release_times entry
+	  //     if time since last release > period
+	  //          dd_tcreate(...)
+	  //          release_times.last_release = now
 
-  // create kernel log
-  _klog_create(2048, 0);
-  _klog_control(KLOG_ENABLED | KLOG_CONTEXT_ENABLED |
-//		  	  	KLOG_TASK_QUALIFIED |
-				KLOG_FUNCTIONS_ENABLED |
-				KLOG_TIME_FUNCTIONS |
-				KLOG_IO_FUNCTIONS |
-				KLOG_MESSAGE_FUNCTIONS, TRUE);
-  _klog_control(KLOG_INTERRUPTS_ENABLED, FALSE);
-
-  // Initialize scheduler, generator tasks
-  _task_create(0, SCHEDULER_TASK, 0);
-  _task_create(0, GENERATOR_TASK, 0);
-
-  _task_abort(_task_get_id());
+    OSA_TimeDelay(10);                 /* Example code (for task release) */
+    
+#ifdef PEX_USE_RTOS   
+  }
+#endif    
 }
 
-/* END rtos_main_task */
+/* END generator_tasks */
 
 #ifdef __cplusplus
 }  /* extern "C" */

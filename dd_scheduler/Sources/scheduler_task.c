@@ -1,31 +1,31 @@
 /* ###################################################################
-**     Filename    : rtos_main_task.c
+**     Filename    : scheduler_task.c
 **     Project     : dd_scheduler
 **     Processor   : MK22FN512VLH12
 **     Component   : Events
 **     Version     : Driver 01.00
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-17, 13:08, # CodeGen: 1
+**     Date/Time   : 2018-03-20, 19:27, # CodeGen: 7
 **     Abstract    :
 **         This is user's event module.
 **         Put your event handler code here.
 **     Settings    :
 **     Contents    :
-**         main_task - void main_task(os_task_param_t task_init_data);
+**         Scheduler_task - void Scheduler_task(os_task_param_t task_init_data);
 **
 ** ###################################################################*/
 /*!
-** @file rtos_main_task.c
+** @file scheduler_task.c
 ** @version 01.00
 ** @brief
 **         This is user's event module.
 **         Put your event handler code here.
 */         
 /*!
-**  @addtogroup rtos_main_task_module rtos_main_task module documentation
+**  @addtogroup scheduler_task_module scheduler_task module documentation
 **  @{
 */         
-/* MODULE rtos_main_task */
+/* MODULE scheduler_task */
 
 #include "Cpu.h"
 #include "Events.h"
@@ -38,55 +38,51 @@
 extern "C" {
 #endif 
 
-
 /* User includes (#include below this line is not maintained by Processor Expert) */
-#include <klog.h>
-#include <mqx.h>
+#include "dd_scheduler.h"
 
-/* Initialization of Processor Expert components function prototype */
-#ifdef MainTask_PEX_RTOS_COMPONENTS_INIT
-extern void PEX_components_init(void);
-#endif 
+#define INIT_MESSAGES (4)
+#define GROW_MESSAGES (2)
 
 /*
 ** ===================================================================
-**     Callback    : main_task
+**     Callback    : Scheduler_task
 **     Description : Task function entry.
 **     Parameters  :
 **       task_init_data - OS task parameter
 **     Returns : Nothing
 ** ===================================================================
 */
-void main_task(os_task_param_t task_init_data)
+void Scheduler_task(os_task_param_t task_init_data)
 {
+	// Create the message pool with room for the largest message
+	_pool_id scheduler_message_pool = _msgpool_create(
+			sizeof(SCHEDULER_RQST_MSG), INIT_MESSAGES, GROW_MESSAGES, 0);
+	_pool_id scheduler_resp_pool = _msgpool_create(
+			sizeof(SCHEDULER_RESP_MSG), INIT_MESSAGES, GROW_MESSAGES, 0);
 
-  /* Initialization of Processor Expert components (when some RTOS is active). DON'T REMOVE THIS CODE!!! */
-#ifdef MainTask_PEX_RTOS_COMPONENTS_INIT
-  PEX_components_init(); 
-#endif 
-  /* End of Processor Expert components initialization.  */
+	_time_delay(5); // Allow other tasks to initialize
+  
+#ifdef PEX_USE_RTOS
+	while (1) {
+#endif
+		/* Write your code here ... */
 
-  // install exception ISR handler
-  _int_install_unexpected_isr();
+		// Handler for scheduler requests go here.
+		// Receive dd_scheduler request messages and handle request,
+		// then reply.
 
-  // create kernel log
-  _klog_create(2048, 0);
-  _klog_control(KLOG_ENABLED | KLOG_CONTEXT_ENABLED |
-//		  	  	KLOG_TASK_QUALIFIED |
-				KLOG_FUNCTIONS_ENABLED |
-				KLOG_TIME_FUNCTIONS |
-				KLOG_IO_FUNCTIONS |
-				KLOG_MESSAGE_FUNCTIONS, TRUE);
-  _klog_control(KLOG_INTERRUPTS_ENABLED, FALSE);
+		for (_mqx_uint i=0; i < 100000000000; i++);
 
-  // Initialize scheduler, generator tasks
-  _task_create(0, SCHEDULER_TASK, 0);
-  _task_create(0, GENERATOR_TASK, 0);
+		_time_delay(1);
 
-  _task_abort(_task_get_id());
+
+#ifdef PEX_USE_RTOS   
+	}
+#endif    
 }
 
-/* END rtos_main_task */
+/* END scheduler_task */
 
 #ifdef __cplusplus
 }  /* extern "C" */
