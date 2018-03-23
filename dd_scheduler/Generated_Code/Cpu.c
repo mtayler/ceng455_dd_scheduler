@@ -8,7 +8,7 @@
 **     Repository  : KSDK 1.3.0
 **     Datasheet   : K22P121M120SF7RM, Rev. 1, March 24, 2014
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-22, 18:44, # CodeGen: 23
+**     Date/Time   : 2018-03-23, 16:05, # CodeGen: 21
 **     Abstract    :
 **
 **     Settings    :
@@ -115,6 +115,10 @@ void Components_Init(void)
   /*! Monitor Auto initialization start */ 
   (void)Monitor_Init();
   /*! Monitor Auto initialization end */                       
+  /*! GPIO_RGB Auto initialization start */
+  GPIO_DRV_Init(NULL,GPIO_RGB_OutConfig0);
+  /*! GPIO_RGB Auto initialization end */
+  
 }
 #endif /* CPU_COMPONENTS_INIT */
 

@@ -57,17 +57,24 @@ extern "C" {
 */
 void Generator_task(os_task_param_t task_init_data)
 {
-	MQX_TICK_STRUCT current_time;
+	MQX_TICK_STRUCT current_ticks;
+	TIME_STRUCT current_time;
 	MQX_TICK_STRUCT release_times[PERIODIC_TASKS];
-	bool overflow;
+	bool overflow = FALSE;
 
 	while (1) {
-		_time_get_elapsed_ticks(&current_time);
+		_time_get_elapsed_ticks(&current_ticks);
 		for (uint8_t i=0; i < PERIODIC_TASKS; i++) {
-			time_t elapsed = _time_diff_milliseconds(
-					&release_times[i], &current_time, &overflow);
+
+			time_t elapsed = _time_diff_seconds(
+					&release_times[i], &current_ticks, &overflow);
+
 			if (overflow | (elapsed > periodic_tasks[i].period)) {
-				dd_tcreate(i, periodic_tasks[i].execution_time);
+				_time_get_elapsed_ticks(&release_times[i]);
+
+				_ticks_to_time(&current_ticks, &current_time);
+				dd_tcreate(i, current_time.SECONDS+periodic_tasks[i].execution_time);
+
 			}
 		}
 	}

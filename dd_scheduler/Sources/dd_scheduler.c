@@ -44,6 +44,7 @@ uint32_t dd_tcreate(_mqx_uint template_index, time_t deadline) {
 	msg = create_scheduler_request(&local_q);
 	msg->RQST = CreateTask;
 	msg->id = template_index;
+	msg->deadline = deadline;
 
 	if (_msgq_send(msg)) {
 		SCHEDULER_RESP_MSG_PTR resp =
@@ -94,12 +95,8 @@ uint32_t dd_active_list(struct task_list **list) {
 			result = resp->result;
 			// If rqst okay, check if list pointer is valid
 			if (result == MQX_OK) {
-				if (resp->list != NULL) {
-					*list = resp->list;
-				} else {
-					// If list pointer invalid, return error
-					result = MQX_INVALID_POINTER;
-				}
+				*list = resp->list;
+				result = MQX_INVALID_POINTER;
 			}
 			_msg_free(resp);
 		}

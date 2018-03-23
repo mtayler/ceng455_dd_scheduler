@@ -46,6 +46,7 @@
 #include "Scheduler.h"
 #include "Monitor.h"
 #include "PeriodicTask.h"
+#include "GPIO_RGB.h"
 #if CPU_INIT_CONFIG
   #include "Init_Config.h"
 #endif

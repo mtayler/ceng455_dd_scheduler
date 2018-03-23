@@ -7,7 +7,7 @@
 **     Version     : Component 1.2.0, Driver 1.4, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-17, 13:08, # CodeGen: 1
+**     Date/Time   : 2018-03-23, 16:05, # CodeGen: 21
 **     Abstract    :
 **
 **     Settings    :
@@ -969,6 +969,56 @@
 #include "pin_init.h"
 
 
+/*FUNCTION**********************************************************************
+*
+* Function Name : init_gpio_pins
+* Description   : GPIO method sets registers according routing settings.
+* Call this method code to route desired pins.
+*END**************************************************************************/
+void init_gpio_pins(uint32_t instance)
+{
+  switch(instance) {    
+    case PORTA_IDX:                     /* PORTA_IDX */
+      /* Affects PORTA_PCR1 register */
+      PORT_HAL_SetMuxMode(PORTA,1UL,kPortMuxAsGpio);
+      PORT_HAL_SetSlewRateMode(PORTA,1UL,kPortSlowSlewRate);
+      PORT_HAL_SetOpenDrainCmd(PORTA,1UL,true);
+      /* Affects PORTA_PCR2 register */
+      PORT_HAL_SetMuxMode(PORTA,2UL,kPortMuxAsGpio);
+      PORT_HAL_SetSlewRateMode(PORTA,2UL,kPortSlowSlewRate);
+      PORT_HAL_SetOpenDrainCmd(PORTA,2UL,true);
+      break;
+    case PORTD_IDX:                     /* PORTD_IDX */
+      /* Affects PORTD_PCR5 register */
+      PORT_HAL_SetDriveStrengthMode(PORTD,5UL,kPortLowDriveStrength);  
+      PORT_HAL_SetMuxMode(PORTD,5UL,kPortMuxAsGpio);
+      PORT_HAL_SetSlewRateMode(PORTD,5UL,kPortSlowSlewRate);
+      PORT_HAL_SetOpenDrainCmd(PORTD,5UL,true);
+      break;
+    default:
+      break;
+  }
+}
+/*FUNCTION**********************************************************************
+*
+* Function Name : deinit_gpio_pins
+* Description   : GPIO method sets registers according routing settings.
+* Call this method code to disable routing of desired pins.
+*END**************************************************************************/
+void deinit_gpio_pins(uint32_t instance)
+{
+  switch(instance) {    
+    case PORTA_IDX:                     /* PORTA_IDX */
+      PORT_HAL_SetMuxMode(PORTA,1UL,kPortPinDisabled);
+      PORT_HAL_SetMuxMode(PORTA,2UL,kPortPinDisabled);
+      break;
+    case PORTD_IDX:                     /* PORTD_IDX */
+      PORT_HAL_SetMuxMode(PORTD,5UL,kPortPinDisabled);
+      break;
+    default:
+      break;
+  }
+}
 
 /*FUNCTION**********************************************************************
 *
@@ -980,10 +1030,6 @@ void init_jtag_pins(uint32_t instance)
 {
   /* Affects PORTA_PCR0 register */
   PORT_HAL_SetMuxMode(PORTA,0UL,kPortMuxAlt7);
-  /* Affects PORTA_PCR1 register */
-  PORT_HAL_SetMuxMode(PORTA,1UL,kPortMuxAlt7);
-  /* Affects PORTA_PCR2 register */
-  PORT_HAL_SetMuxMode(PORTA,2UL,kPortMuxAlt7);
   /* Affects PORTA_PCR3 register */
   PORT_HAL_SetMuxMode(PORTA,3UL,kPortMuxAlt7);
 }
@@ -996,8 +1042,6 @@ void init_jtag_pins(uint32_t instance)
 void deinit_jtag_pins(uint32_t instance)
 {
   PORT_HAL_SetMuxMode(PORTA,0UL,kPortPinDisabled);
-  PORT_HAL_SetMuxMode(PORTA,1UL,kPortPinDisabled);
-  PORT_HAL_SetMuxMode(PORTA,2UL,kPortPinDisabled);
   PORT_HAL_SetMuxMode(PORTA,3UL,kPortPinDisabled);
 }
 
@@ -1024,28 +1068,6 @@ void deinit_osc_pins(uint32_t instance)
 {
   PORT_HAL_SetMuxMode(PORTA,18UL,kPortPinDisabled);
   PORT_HAL_SetMuxMode(PORTA,19UL,kPortPinDisabled);
-}
-
-/*FUNCTION**********************************************************************
-*
-* Function Name : init_tpiu_pins
-* Description   : TPIU method sets registers according routing settings.
-* Call this method code to route desired pins.
-*END**************************************************************************/
-void init_tpiu_pins(uint32_t instance)
-{
-  /* Affects PORTA_PCR2 register */
-  PORT_HAL_SetMuxMode(PORTA,2UL,kPortMuxAlt7);
-}
-/*FUNCTION**********************************************************************
-*
-* Function Name : deinit_tpiu_pins
-* Description   : TPIU method sets registers according routing settings.
-* Call this method code to disable routing of desired pins.
-*END**************************************************************************/
-void deinit_tpiu_pins(uint32_t instance)
-{
-  PORT_HAL_SetMuxMode(PORTA,2UL,kPortPinDisabled);
 }
 /*FUNCTION**********************************************************************
 *

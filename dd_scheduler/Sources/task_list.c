@@ -7,35 +7,35 @@
 
 #include "task_list.h"
 
+#include "Generator.h"
+
 #include <stdio.h>
 
-task_list_ptr add_task(task_list_ptr * list, task_list_ptr task) {
-	if (*list == NULL) {
-		*list = task;
-		return MQX_OK;
-	}
-
+_mqx_uint add_task(task_list_ptr * list, task_list_ptr task) {
 	task->next_cell = NULL;
 	task->previous_cell = NULL;
 
-	// If new first element
-	if (task->deadline.MILLISECONDS < (*list)->deadline.MILLISECONDS) {
-		task->next_cell = *list;
-		(*list)->previous_cell = task;
+	task_list_ptr t = *list;
+	// if the list is empty
+	if (t == NULL) {
 		*list = task;
-		return task;
+		return MQX_OK;
+	}
+	// Else find where to put it
+	while (t->next_cell != NULL &&
+			task->deadline.SECONDS > t->next_cell->deadline.SECONDS) {
+		t = t->next_cell;
+	}
+	task->next_cell = t;
+	task->previous_cell = t->previous_cell;
+	t->previous_cell = task;
+
+	// If we're at the start, update *list
+	if (task->previous_cell == NULL) {
+		*list = task;
 	}
 
-	task = *list;
-	while (task->next_cell != NULL &&
-			task->deadline.SECONDS > task->next_cell->deadline.SECONDS) {
-		task = task->next_cell;
-	}
-	task->next_cell = task->next_cell;
-	task->previous_cell = task;
-	task->next_cell = task;
-
-	return task;
+	return MQX_OK;
 }
 
 task_list_ptr get_task(task_list_ptr list, _task_id tid) {
@@ -83,17 +83,25 @@ _mqx_uint delete_task(task_list_ptr * list, _task_id tid) {
 
 _mqx_uint sort_tasks(task_list_ptr list);
 
-_mqx_uint assign_priorities(task_list_ptr list) {
-	if (list == NULL) {
-		return MQX_INVALID_POINTER;
-	}
+_mqx_uint update_priorities(task_list_ptr list) {
+	_mqx_uint priority;
+	_mqx_uint prev_priority;
 
-	_mqx_uint priority = 1;	// highest priority below scheduler task
-	while (list->next_cell != NULL) {
-		_task_set_priority(list->tid, priority, NULL);
-		// increase priority until min priority
+	// get highest priority below scheduler task
+	_task_get_priority(_task_get_id_from_name(GENERATOR_TASK_NAME), &priority);
+	while (list != NULL) {
+		// increase priority until min priority (run first so higher than gen)
 		if (priority < _sched_get_min_priority(MQX_SCHED_FIFO)) {
 			priority++;
+		}
+
+		_mqx_uint result = _task_set_priority(list->tid, priority, &prev_priority);
+		if (result != MQX_OK) {
+			// Task ended while we were updating priorities
+			if (result == MQX_INVALID_TASK_ID) {
+				continue;
+			}
+			return result;
 		}
 		list = list->next_cell;
 	}

@@ -8,7 +8,7 @@
 **     Repository  : KSDK 1.3.0
 **     Datasheet   : K22P121M120SF7RM, Rev. 1, March 24, 2014
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-17, 13:08, # CodeGen: 1
+**     Date/Time   : 2018-03-23, 16:05, # CodeGen: 21
 **     Abstract    :
 **
 **     Settings    :
@@ -81,6 +81,8 @@
 #include "fsl_hwtimer.h"
 #include "fsl_os_abstraction.h"
 #include "osa1.h"
+#include "fsl_gpio_hal.h"
+#include "fsl_gpio_driver.h"
 #include <assert.h>
 
 #ifdef __cplusplus

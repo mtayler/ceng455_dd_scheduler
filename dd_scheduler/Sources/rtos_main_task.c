@@ -43,6 +43,7 @@ extern "C" {
 /* User includes (#include below this line is not maintained by Processor Expert) */
 #include <klog.h>
 #include <mqx.h>
+#include <timer.h>
 
 /* Initialization of Processor Expert components function prototype */
 #ifdef MainTask_PEX_RTOS_COMPONENTS_INIT
@@ -67,18 +68,23 @@ void main_task(os_task_param_t task_init_data)
 #endif 
   /* End of Processor Expert components initialization.  */
 
+  // Init timer component
+  _timer_create_component(0, 1024);
+
   // create kernel log
   _klog_create(2048, 0);
   _klog_control(KLOG_ENABLED | KLOG_CONTEXT_ENABLED |
-//		  	  	KLOG_TASK_QUALIFIED |
-				KLOG_FUNCTIONS_ENABLED |
-//				KLOG_TIME_FUNCTIONS |
-				KLOG_IO_FUNCTIONS, TRUE);
+		  KLOG_TASKING_FUNCTIONS |
+		  KLOG_FUNCTIONS_ENABLED |
+		  KLOG_IO_FUNCTIONS, TRUE);
   _klog_control(KLOG_INTERRUPTS_ENABLED, FALSE);
 
   // Initialize scheduler, generator tasks
-  _task_create(0, SCHEDULER_TASK, 0);
-  _task_create(0, GENERATOR_TASK, 0);
+  _mqx_uint old_prior;
+  _task_id sched = _task_create(0, SCHEDULER_TASK, 0);
+  _task_set_priority(sched, _sched_get_max_priority(MQX_SCHED_FIFO), &old_prior);
+  _task_id gen = _task_create(0, GENERATOR_TASK, 0);
+  _task_set_priority(gen, _sched_get_max_priority(MQX_SCHED_FIFO)+1, &old_prior);
 
   _task_block();
 }

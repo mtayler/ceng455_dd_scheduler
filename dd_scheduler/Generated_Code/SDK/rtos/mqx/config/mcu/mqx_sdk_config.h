@@ -6,7 +6,7 @@
 **     Version     : Component 1.2.0, Driver 01.00, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-22, 18:41, # CodeGen: 21
+**     Date/Time   : 2018-03-23, 14:09, # CodeGen: 18
 **
 **     Copyright : 1997 - 2015 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -126,6 +126,7 @@
 #define MQX_USE_LOGS 1
 #define MQX_KERNEL_LOGGING 1
 #define STD_FP_IO 1
+#define DEBUG 1
   
 
 /* Select MQX configurations according to project settings. */

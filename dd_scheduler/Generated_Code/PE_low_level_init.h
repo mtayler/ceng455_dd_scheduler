@@ -8,7 +8,7 @@
 **     Repository  : KSDK 1.3.0
 **     Datasheet   : K22P121M120SF7RM, Rev. 1, March 24, 2014
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-17, 12:10, # CodeGen: 0
+**     Date/Time   : 2018-03-23, 16:05, # CodeGen: 21
 **     Abstract    :
 **
 **     Settings    :
@@ -45,10 +45,8 @@
 **              Reset Pin                                  : RESET_b
 **            Debug interface (JTAG)                       : 
 **              JTAG Mode                                  : JTAG
-**                TDI                                      : Enabled
-**                  TDI Pin                                : LEDRGB_RED/J2_4
-**                TDO                                      : Enabled
-**                  TDO Pin                                : LEDRGB_GREEN/J1_8
+**                TDI                                      : Disabled
+**                TDO                                      : Disabled
 **                TCK                                      : Enabled
 **                  TCK Pin                                : SWD_CLK/J7_1
 **                TMS                                      : Enabled
