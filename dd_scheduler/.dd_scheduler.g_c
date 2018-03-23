@@ -31,7 +31,7 @@
       <XtraAge0>1282498907</XtraAge0>
       <XtraAge1>1282500957</XtraAge1>
       <XtraAge2>1282500957</XtraAge2>
-      <XtraAge3>1282833604</XtraAge3>
+      <XtraAge3>1282839867</XtraAge3>
       <XtraAge4>1282500957</XtraAge4>
       <XtraAge5>1282498907</XtraAge5>
       <GenExtraFileType10>5</GenExtraFileType10>
@@ -2395,10 +2395,11 @@
         <NoMoreGenerated>false</NoMoreGenerated>
         <NotCreatedByDefault>false</NotCreatedByDefault>
       </SynchronizedStaticFile>
-      <GenEventModules lines_count="5">
+      <GenEventModules lines_count="6">
         <Line>Events</Line>
         <Line>generator_tasks</Line>
         <Line>monitor_task</Line>
+        <Line>periodic_task</Line>
         <Line>rtos_main_task</Line>
         <Line>scheduler_task</Line>
       </GenEventModules>
@@ -2409,13 +2410,14 @@
       <GenMethodsInmonitor_task lines_count="1">
         <Line>Monitor_task</Line>
       </GenMethodsInmonitor_task>
+      <GenMethodsInperiodic_task lines_count="1">
+        <Line>PeriodicTask_task</Line>
+      </GenMethodsInperiodic_task>
       <GenMethodsInrtos_main_task lines_count="1">
         <Line>main_task</Line>
       </GenMethodsInrtos_main_task>
-      <GenMethodsInscheduler_task lines_count="1">
-        <Line>Scheduler_task</Line>
-      </GenMethodsInscheduler_task>
-      <GenAllModules lines_count="16">
+      <GenMethodsInscheduler_task lines_count="0" />
+      <GenAllModules lines_count="18">
         <Line>clockMan1</Line>
         <Line>Cpu</Line>
         <Line>Events</Line>
@@ -2427,6 +2429,8 @@
         <Line>monitor_task</Line>
         <Line>mqx_ksdk</Line>
         <Line>osa1</Line>
+        <Line>periodic_task</Line>
+        <Line>PeriodicTask</Line>
         <Line>pin_init</Line>
         <Line>rtos_main_task</Line>
         <Line>Scheduler</Line>
@@ -2434,7 +2438,7 @@
         <Line>uart1</Line>
       </GenAllModules>
       <GenExternModules lines_count="0" />
-      <GenBeanModules lines_count="10">
+      <GenBeanModules lines_count="11">
         <Line>clockMan1</Line>
         <Line>pin_init</Line>
         <Line>osa1</Line>
@@ -2445,11 +2449,12 @@
         <Line>Generator</Line>
         <Line>Scheduler</Line>
         <Line>Monitor</Line>
+        <Line>PeriodicTask</Line>
       </GenBeanModules>
     </GenFiles>
     <SignalListFile />
     <DestinationCompiler>GNUC</DestinationCompiler>
-    <ProjectModificationStamp>18</ProjectModificationStamp>
+    <ProjectModificationStamp>20</ProjectModificationStamp>
   </Options>
   <CpuID_1>
     <Generated>true</Generated>
@@ -2458,7 +2463,7 @@
     <GenDriverVersion>01.00</GenDriverVersion>
     <GenEventModule>Events</GenEventModule>
     <HeaderAge>1282500957</HeaderAge>
-    <CodeAge>1282710380</CodeAge>
+    <CodeAge>1282839947</CodeAge>
     <AsemblAge>-1</AsemblAge>
     <GenNumMethods>2</GenNumMethods>
     <SystemInit>true</SystemInit>
@@ -3387,8 +3392,8 @@
       <GenComponentVersion>1.2.0</GenComponentVersion>
       <GenDriverVersion>01.00</GenDriverVersion>
       <GenEventModule />
-      <HeaderAge>1282710380</HeaderAge>
-      <CodeAge>1282830555</CodeAge>
+      <HeaderAge>1282839867</HeaderAge>
+      <CodeAge>1282839947</CodeAge>
       <AsemblAge>-1</AsemblAge>
       <GenNumMethods>287</GenNumMethods>
       <_int_default_isr>true</_int_default_isr>
@@ -4189,7 +4194,7 @@
     <GetHandler>false</GetHandler>
     <Deinit>false</Deinit>
     <GenNumEvents>1</GenNumEvents>
-    <TaskCode_Selected>3</TaskCode_Selected>
+    <TaskCode_Selected>1</TaskCode_Selected>
     <TaskCode_Name>Scheduler_task</TaskCode_Name>
     <TaskCode_Priority>interrupts disabled</TaskCode_Priority>
     <GenSmartUserChangesDetected_Header>false</GenSmartUserChangesDetected_Header>
@@ -4249,6 +4254,43 @@
     </MethodPos>
     <GenExtraFilesCount>0</GenExtraFilesCount>
   </ComponentID_36>
+  <ComponentID_61>
+    <Generated>true</Generated>
+    <GenCompName>PeriodicTask</GenCompName>
+    <GenComponentVersion>1.3.0</GenComponentVersion>
+    <GenDriverVersion>01.00</GenDriverVersion>
+    <GenEventModule>periodic_task</GenEventModule>
+    <HeaderAge>1282839867</HeaderAge>
+    <CodeAge>1282839947</CodeAge>
+    <AsemblAge>-1</AsemblAge>
+    <GenNumMethods>3</GenNumMethods>
+    <Init>true</Init>
+    <GetHandler>false</GetHandler>
+    <Deinit>false</Deinit>
+    <GenNumEvents>1</GenNumEvents>
+    <TaskCode_Selected>3</TaskCode_Selected>
+    <TaskCode_Name>PeriodicTask_task</TaskCode_Name>
+    <TaskCode_Priority>interrupts disabled</TaskCode_Priority>
+    <GenSmartUserChangesDetected_Header>false</GenSmartUserChangesDetected_Header>
+    <GenSmartUserChangesDetected_Code>false</GenSmartUserChangesDetected_Code>
+    <GenSmartUserChangesDetected_Asembl>false</GenSmartUserChangesDetected_Asembl>
+    <GenMethodPos>2</GenMethodPos>
+    <MethodPos>
+      <MethodPos0>Init</MethodPos0>
+      <MethodType>internal_method</MethodType>
+      <ModuleType>Header</ModuleType>
+      <LineBeg>69</LineBeg>
+      <LineEnd>80</LineEnd>
+    </MethodPos>
+    <MethodPos>
+      <MethodPos1>Init</MethodPos1>
+      <MethodType>internal_method</MethodType>
+      <ModuleType>Code</ModuleType>
+      <LineBeg>61</LineBeg>
+      <LineEnd>79</LineEnd>
+    </MethodPos>
+    <GenExtraFilesCount>0</GenExtraFilesCount>
+  </ComponentID_61>
   <UsedSrcFiles>
     <SrcFile0>Drivers\PEx_Kinetis.src=1194226771</SrcFile0>
     <SrcFile1>Drivers\MQX_KSDK.src=-1</SrcFile1>

@@ -6,7 +6,7 @@
 **     Version     : Component 1.2.0, Driver 01.00, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-22, 15:38, # CodeGen: 18
+**     Date/Time   : 2018-03-22, 18:41, # CodeGen: 21
 **
 **     Copyright : 1997 - 2015 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -125,7 +125,6 @@
 /* Additional settings can be defined in the property User Definitions > Definitions of the MQX RTOS component */
 #define MQX_USE_LOGS 1
 #define MQX_KERNEL_LOGGING 1
-#define MQX_INCLUDE_FLOATING_POINT_IO 1
 #define STD_FP_IO 1
   
 

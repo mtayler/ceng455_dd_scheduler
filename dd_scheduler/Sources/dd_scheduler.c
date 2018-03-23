@@ -6,6 +6,7 @@
  */
 
 #include "dd_scheduler.h"
+
 /* ----------------------------------------------------------------------------
  * create_scheduler_request		Fill out boiler plate of a scheduler request msg
  * ----------------------------------------------------------------------------
@@ -100,7 +101,7 @@ uint32_t dd_active_list(struct task_list **list) {
 	return result;
 }
 
-uint32_t dd_overdue_list(struct overdue_task_list **list) {
+uint32_t dd_overdue_list(struct task_list **list) {
 	_queue_id local_q;
 	SCHEDULER_RQST_MSG_PTR msg;
 

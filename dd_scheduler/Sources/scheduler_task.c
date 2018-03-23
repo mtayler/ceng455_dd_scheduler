@@ -1,48 +1,27 @@
-/* ###################################################################
-**     Filename    : scheduler_task.c
-**     Project     : dd_scheduler
-**     Processor   : MK22FN512VLH12
-**     Component   : Events
-**     Version     : Driver 01.00
-**     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-20, 19:27, # CodeGen: 7
-**     Abstract    :
-**         This is user's event module.
-**         Put your event handler code here.
-**     Settings    :
-**     Contents    :
-**         Scheduler_task - void Scheduler_task(os_task_param_t task_init_data);
-**
-** ###################################################################*/
-/*!
-** @file scheduler_task.c
-** @version 01.00
-** @brief
-**         This is user's event module.
-**         Put your event handler code here.
-*/         
-/*!
-**  @addtogroup scheduler_task_module scheduler_task module documentation
-**  @{
-*/         
-/* MODULE scheduler_task */
+#include "scheduler_task.h"
+
+#include <stdio.h>
+
+#include "periodic_task.h"
+#include "task_list.h"
 
 #include "Cpu.h"
 #include "Events.h"
 #include "rtos_main_task.h"
-#include "generator_tasks.h"
-#include "scheduler_task.h"
-#include "monitor_task.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif 
-
-/* User includes (#include below this line is not maintained by Processor Expert) */
 #include "dd_scheduler.h"
 
-#define INIT_MESSAGES (4)
-#define GROW_MESSAGES (2)
+#define MAX_QUEUE_SIZE (0)
+
+static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg);
+static void sched_delete_task(SCHEDULER_RQST_MSG_PTR msg);
+static void sched_task_list(SCHEDULER_RQST_MSG_PTR msg);
+static void sched_overdue_task_list(SCHEDULER_RQST_MSG_PTR msg);
+
+task_list_ptr tasks;
+task_list_ptr overdue_tasks;
+
+static _pool_id scheduler_resp_pool;
+static _queue_id scheduler_msg_q;
 
 /*
 ** ===================================================================
@@ -55,47 +34,167 @@ extern "C" {
 */
 void Scheduler_task(os_task_param_t task_init_data)
 {
-	// Create the message pool with room for the largest message
-	_pool_id scheduler_message_pool = _msgpool_create(
-			sizeof(SCHEDULER_RQST_MSG), INIT_MESSAGES, GROW_MESSAGES, 0);
-	_pool_id scheduler_resp_pool = _msgpool_create(
+	// Create the message pools
+	_pool_id __attribute__((__unused__)) scheduler_message_pool = // silence
+			_msgpool_create(sizeof(SCHEDULER_RQST_MSG),           // unused
+					INIT_MESSAGES, GROW_MESSAGES, 0);             // for extern
+	scheduler_resp_pool = _msgpool_create(
 			sizeof(SCHEDULER_RESP_MSG), INIT_MESSAGES, GROW_MESSAGES, 0);
+
+	scheduler_msg_q = _msgq_open(SCHEDULER_QID, 0);
 
 	_time_delay(5); // Allow other tasks to initialize
   
-#ifdef PEX_USE_RTOS
 	while (1) {
-#endif
-		/* Write your code here ... */
+		SCHEDULER_RQST_MSG_PTR msg = _msgq_receive(scheduler_msg_q, 0);
 
-		// Handler for scheduler requests go here.
-		// Receive dd_scheduler request messages and handle request,
-		// then reply.
+		if (msg) {
+			switch(msg->RQST) {
+				case CreateTask:
+					sched_create_task(msg);
+					break;
+				case DeleteTask:
+					sched_delete_task(msg);
+					break;
+				case TaskList:
+					sched_task_list(msg);
+					break;
+				case OverdueTaskList:
+					sched_overdue_task_list(msg);
+					break;
+				default:
+					_msg_free(msg);
+					SCHEDULER_RESP_MSG_PTR resp = _msg_alloc(scheduler_resp_pool);
+					if (resp) {
+						resp->HEADER.TARGET_QID = msg->HEADER.SOURCE_QID;
+						resp->HEADER.SOURCE_QID = scheduler_msg_q;
+						resp->HEADER.SIZE = sizeof(SCHEDULER_RESP_MSG);
+						resp->result = MQX_EINVAL;
 
-		for (_mqx_uint i=0; i < 100000000000; i++);
-
-		_time_delay(1);
-
-
-#ifdef PEX_USE_RTOS   
+						_msgq_send(resp);
+					}
+					break;
+			}
+		} else {
+			printf("Couldn't get message, error: %x", (uint)_task_get_error());
+		}
 	}
-#endif    
 }
 
-/* END scheduler_task */
+static void deadline_overdue(_timer_id timer, void * task,
+		uint32_t mode, uint32_t time) {
+	delete_task(&tasks, ((task_list_ptr)task)->tid);
+	add_task(&overdue_tasks, (task_list_ptr)task);
+}
 
-#ifdef __cplusplus
-}  /* extern "C" */
-#endif 
+static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg) {
+	// Create task
+	_task_id tid = _task_create(0, PERIODICTASK_TASK, msg->id);
 
-/*!
-** @}
-*/
-/*
-** ###################################################################
-**
-**     This file was created by Processor Expert 10.5 [05.21]
-**     for the Freescale Kinetis series of microcontrollers.
-**
-** ###################################################################
-*/
+	SCHEDULER_RESP_MSG_PTR resp = _msg_alloc(scheduler_resp_pool);
+	resp->HEADER.TARGET_QID = resp->HEADER.SOURCE_QID;
+	resp->HEADER.SOURCE_QID = scheduler_msg_q;
+	resp->HEADER.SIZE = sizeof(SCHEDULER_RESP_MSG);
+
+	TIME_STRUCT now;
+	_time_get_elapsed(&now);
+
+	task_list_ptr task = _mem_alloc(sizeof(task_list_t));
+	task->tid = tid;
+	task->deadline = (TIME_STRUCT){
+		now.SECONDS + periodic_tasks[msg->id].execution_time, 0};
+	task->task_type = 0;
+	task->creation_time = now.SECONDS;
+
+	_msg_free(msg);
+
+	// Create a timer to check deadline
+	_timer_id timer = _timer_start_oneshot_at(
+			deadline_overdue, task,
+			TIMER_ELAPSED_TIME_MODE, &(task->deadline));
+
+	task->timer = timer;
+
+	// Create task list entry
+	if (add_task(&tasks, task) != NULL) {
+		_mem_free(task);
+		resp->result = _task_get_error();
+		_msgq_send(resp);
+		return;
+	}
+
+	// Assign priorities
+	_mqx_uint result = assign_priorities(tasks);
+	if (result != MQX_OK) {
+		resp->result = result;
+		_msgq_send(resp);
+		return;
+	}
+}
+
+static void sched_delete_task(SCHEDULER_RQST_MSG_PTR msg) {
+	// Remove the task list entry
+	task_list_ptr task = get_task(tasks, msg->id);
+	if (task == NULL) {
+		task = get_task(overdue_tasks, msg->id);
+	} else {
+		delete_task(&tasks, task->tid);
+	}
+
+	SCHEDULER_RESP_MSG_PTR resp = _msg_alloc(scheduler_resp_pool);
+	resp->HEADER.TARGET_QID = msg->HEADER.SOURCE_QID;
+	resp->HEADER.SOURCE_QID = scheduler_msg_q;
+	resp->HEADER.SIZE = sizeof(SCHEDULER_RESP_MSG);
+
+	// Can free message now
+	_msg_free(msg);
+
+	// Check if a task was found
+	if (task != NULL) {
+		delete_task(&tasks, task->tid);
+	} else {
+		// Send no task found
+		resp->result = MQX_INVALID_PARAMETER;
+		_msgq_send(resp);
+		return;
+	}
+
+	// Delete any timers
+	_timer_cancel(task->timer);
+
+	// Assign priorities
+	assign_priorities(tasks);
+	assign_priorities(overdue_tasks);
+}
+
+static void sched_task_list(SCHEDULER_RQST_MSG_PTR msg) {
+	SCHEDULER_RESP_MSG_PTR resp = _msg_alloc(scheduler_resp_pool);
+
+	if (resp) {
+		resp->HEADER.TARGET_QID = msg->HEADER.SOURCE_QID;
+		resp->HEADER.SOURCE_QID = scheduler_msg_q;
+		resp->list = tasks;
+		resp->result = MQX_OK;
+
+		_msgq_send(msg);
+	}
+	_msg_free(msg);
+
+	return;
+}
+
+static void sched_overdue_task_list(SCHEDULER_RQST_MSG_PTR msg) {
+	SCHEDULER_RESP_MSG_PTR resp = _msg_alloc(scheduler_resp_pool);
+
+	if (resp) {
+		resp->HEADER.TARGET_QID = msg->HEADER.SOURCE_QID;
+		resp->HEADER.SOURCE_QID = scheduler_msg_q;
+		resp->list = overdue_tasks;
+		resp->result = MQX_OK;
+
+		_msgq_send(msg);
+	}
+	_msg_free(msg);
+
+	return;
+}

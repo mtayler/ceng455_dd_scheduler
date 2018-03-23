@@ -41,6 +41,7 @@
 #include "Generator.h"
 #include "Scheduler.h"
 #include "Monitor.h"
+#include "PeriodicTask.h"
 
 #ifdef __cplusplus
 extern "C" {

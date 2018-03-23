@@ -33,6 +33,7 @@
 #include "generator_tasks.h"
 #include "scheduler_task.h"
 #include "monitor_task.h"
+#include "periodic_task.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -12,6 +12,11 @@
 #include <mqx.h>
 #include <message.h>
 
+#include "task_list.h"
+
+#define INIT_MESSAGES (4)
+#define GROW_MESSAGES (2)
+
 #define SCHEDULER_QID (3)
 
 #define TIMEOUT (1000)
@@ -34,30 +39,10 @@ typedef struct scheduler_request_message {
 
 typedef struct scheduler_response_message {
 	MESSAGE_HEADER_STRUCT HEADER;
-	bool response;
 	uint32_t result; // task_id or error
 	void * list; // pointer to start of (overdue) task list for list requests
 } SCHEDULER_RESP_MSG, * SCHEDULER_RESP_MSG_PTR;
 
-// List of running tasks
-struct task_list {
-	uint32_t tid;
-	uint32_t deadline;
-	uint32_t task_type;
-	uint32_t creation_time;
-	struct task_list *next_cell;
-	struct task_list *previous_cell;
-} * tasks;
-
-// List of overdue tasks
-struct overdue_task_list {
-	uint32_t tid;
-	uint32_t deadline;
-	uint32_t task_type;
-	uint32_t creation_time;
-	struct overdue_tasks *next_cell;
-	struct overdue_tasks *previous_cell;
-} * overdue_tasks;
 
 /* ----------------------------------------------------------------------------
  * dd_tcreate		Create a new deadline-driven scheduled task
@@ -109,7 +94,7 @@ uint32_t dd_active_list(struct task_list **list);
  *
  * Get a pointer to the start of the overdue task list
  */
-uint32_t dd_overdue_list(struct overdue_task_list **list);
+uint32_t dd_overdue_list(struct task_list **list);
 
 
 #endif /* SOURCES_DD_SCHEDULER_H_ */

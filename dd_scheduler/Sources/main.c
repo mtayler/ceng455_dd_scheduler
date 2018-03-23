@@ -34,6 +34,7 @@
 #include "generator_tasks.h"
 #include "scheduler_task.h"
 #include "monitor_task.h"
+#include "periodic_task.h"
 #include "clockMan1.h"
 #include "pin_init.h"
 #include "osa1.h"
@@ -44,6 +45,7 @@
 #include "Generator.h"
 #include "Scheduler.h"
 #include "Monitor.h"
+#include "PeriodicTask.h"
 #if CPU_INIT_CONFIG
   #include "Init_Config.h"
 #endif

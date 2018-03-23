@@ -41,6 +41,7 @@
 #include "Generator.h"
 #include "Scheduler.h"
 #include "Monitor.h"
+#include "PeriodicTask.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,7 +57,6 @@ extern "C" {
 ** ===================================================================
 */
 void Scheduler_task(os_task_param_t task_init_data);
-
 
 /* END scheduler_task */
 

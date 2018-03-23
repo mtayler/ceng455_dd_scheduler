@@ -252,6 +252,9 @@ Module "Scheduler" (component OS_Task)
 Module "Monitor"   (component OS_Task)
    - Monitor_Init -Creates and starts a task.
 
+Module "PeriodicTask" (component OS_Task)
+   - PeriodicTask_Init -Creates and starts a task.
+
 Module "Cpu"       (component MK22FN512LH12_4SDK)
    - Cpu_SystemInit -This method configures the oscillator (PLL) that is part of the microcontroller device. SystemInit is 
                 called from startup_device file.

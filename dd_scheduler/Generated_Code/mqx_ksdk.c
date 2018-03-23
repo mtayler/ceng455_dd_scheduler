@@ -7,7 +7,7 @@
 **     Version     : Component 1.2.0, Driver 01.00, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-22, 14:06, # CodeGen: 12
+**     Date/Time   : 2018-03-22, 18:44, # CodeGen: 23
 **
 **     Copyright : 1997 - 2015 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -59,10 +59,12 @@
 #include "generator_tasks.h"
 #include "scheduler_task.h"
 #include "monitor_task.h"
+#include "periodic_task.h"
 #include "MainTask.h"
 #include "Generator.h"
 #include "Scheduler.h"
 #include "Monitor.h"
+#include "PeriodicTask.h"
 extern void * kernel_data_prv;
 #if MQXCFG_PREALLOCATED_SYSTEM_STACKS
 extern uint8_t mqx_interrupt_stack[];
@@ -71,6 +73,7 @@ extern uint8_t mqx_interrupt_stack[];
 
 #define TASK_TEMPLATE_LIST_END         {0, 0, 0, 0, 0, 0, 0}
   
+uint32_t execution_constant;
   
 /* MQX task template list */
 const TASK_TEMPLATE_STRUCT MQX_template_list[] =
@@ -116,6 +119,17 @@ const TASK_TEMPLATE_STRUCT MQX_template_list[] =
     /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(MONITOR_TASK_PRIORITY)),
     /* Task name                      */  MONITOR_TASK_NAME,
     /* Task attributes                */  (MQX_FLOATING_POINT_TASK),
+    /* Task parameter                 */  (uint32_t)(NULL),
+    /* Task time slice                */  (uint32_t)(0U)
+  },       
+  /* Task: PeriodicTask */
+  {
+    /* Task number                    */  PERIODICTASK_TASK,
+    /* Entry point                    */  (TASK_FPTR)PeriodicTask_task,
+    /* Stack size                     */  PERIODICTASK_TASK_STACK_SIZE,
+    /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(PERIODICTASK_TASK_PRIORITY)),
+    /* Task name                      */  PERIODICTASK_TASK_NAME,
+    /* Task attributes                */  (0),
     /* Task parameter                 */  (uint32_t)(NULL),
     /* Task time slice                */  (uint32_t)(0U)
   },       

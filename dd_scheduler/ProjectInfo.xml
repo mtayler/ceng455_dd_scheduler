@@ -118,6 +118,7 @@
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/Generator.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/MainTask.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/Monitor.c</PathName>
+      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/PeriodicTask.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/Scheduler.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/clockMan1.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/fsl_hwtimer1.c</PathName>
@@ -259,6 +260,8 @@
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/generator_tasks.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/main.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/monitor_task.c</PathName>
+      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/os_tasks.c</PathName>
+      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/periodic_task.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/rtos_main_task.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/scheduler_task.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Static_Code/System/PE_low_level_init.c</PathName>
@@ -269,6 +272,7 @@
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/MainTask.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/Monitor.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/PE_low_level_init.h</PathName>
+      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/PeriodicTask.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/SDK/platform/devices/MK22F51212/startup/system_MK22F51212.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/SDK/rtos/mqx/config/board/user_config.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/SDK/rtos/mqx/config/mcu/mqx_sdk_config.h</PathName>
@@ -410,6 +414,8 @@
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/dd_scheduler.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/generator_tasks.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/monitor_task.h</PathName>
+      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/os_tasks.h</PathName>
+      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/periodic_task.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/periodic_tasks.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/rtos_main_task.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/scheduler_task.h</PathName>
