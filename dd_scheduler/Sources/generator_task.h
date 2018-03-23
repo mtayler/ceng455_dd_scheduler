@@ -1,5 +1,5 @@
 /* ###################################################################
-**     Filename    : generator_tasks.c
+**     Filename    : generator_tasks.h
 **     Project     : dd_scheduler
 **     Processor   : MK22FN512VLH12
 **     Component   : Events
@@ -15,7 +15,7 @@
 **
 ** ###################################################################*/
 /*!
-** @file generator_tasks.c
+** @file generator_tasks.h
 ** @version 01.00
 ** @brief
 **         This is user's event module.
@@ -25,23 +25,28 @@
 **  @addtogroup generator_tasks_module generator_tasks module documentation
 **  @{
 */         
+
+#ifndef __generator_tasks_H
+#define __generator_tasks_H
 /* MODULE generator_tasks */
 
-#include "Cpu.h"
-#include "Events.h"
-#include "rtos_main_task.h"
-#include "generator_tasks.h"
-#include "scheduler_task.h"
-#include "monitor_task.h"
-#include "periodic_task.h"
+#include "fsl_device_registers.h"
+#include "clockMan1.h"
+#include "pin_init.h"
+#include "osa1.h"
+#include "mqx_ksdk.h"
+#include "uart1.h"
+#include "fsl_hwtimer1.h"
+#include "MainTask.h"
+#include "Generator.h"
+#include "Scheduler.h"
+#include "Monitor.h"
+#include "PeriodicTask.h"
+#include "GPIO_RGB.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif 
-
-
-/* User includes (#include below this line is not maintained by Processor Expert) */
-#include <mqx.h>
 
 /*
 ** ===================================================================
@@ -52,32 +57,7 @@ extern "C" {
 **     Returns : Nothing
 ** ===================================================================
 */
-void Generator_task(os_task_param_t task_init_data)
-{
-  /* Write your local variable definition here */
-
-#define PERIODIC_BASE (100)
-
-	struct release_times {
-		struct periodic_task * task;
-		time_t last_release;
-	} release_times;
-  
-#ifdef PEX_USE_RTOS
-  while (1) {
-#endif
-	  /* Write your code here ... */
-	  // for each release_times entry
-	  //     if time since last release > period
-	  //          dd_tcreate(...)
-	  //          release_times.last_release = now
-
-    OSA_TimeDelay(10);                 /* Example code (for task release) */
-    
-#ifdef PEX_USE_RTOS   
-  }
-#endif    
-}
+void Generator_task(os_task_param_t task_init_data);
 
 /* END generator_tasks */
 
@@ -85,6 +65,8 @@ void Generator_task(os_task_param_t task_init_data)
 }  /* extern "C" */
 #endif 
 
+#endif 
+/* ifndef __generator_tasks_H*/
 /*!
 ** @}
 */

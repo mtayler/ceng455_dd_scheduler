@@ -30,7 +30,7 @@
 #include "Cpu.h"
 #include "Events.h"
 #include "rtos_main_task.h"
-#include "generator_tasks.h"
+#include "generator_task.h"
 #include "scheduler_task.h"
 #include "monitor_task.h"
 #include "periodic_task.h"
@@ -43,10 +43,22 @@ extern "C" {
 #include <mqx.h>
 #include <stdio.h>
 
+#include "dd_scheduler.h"
+#include "task_list.h"
+
 static uint64_t get_hwticks_plus_ticks(MQX_TICK_STRUCT_PTR t);
 
-#define PRINT_PERIOD 1000
-#define MONITOR_DELAY 100
+#define UPDATE_PERIOD 1000
+
+static void print_tasks(task_list_ptr task) {
+	while (task != NULL) {
+		printf("\t%20s %8lu %4lu.%04lus %4lu.%04lus\n",
+				_task_get_template_ptr(task->tid)->TASK_NAME, task->tid,
+				task->deadline.SECONDS, task->deadline.MILLISECONDS,
+				task->creation_time.SECONDS, task->creation_time.MILLISECONDS);
+		task = task->next_cell;
+	}
+}
 
 
 /*
@@ -60,46 +72,61 @@ static uint64_t get_hwticks_plus_ticks(MQX_TICK_STRUCT_PTR t);
 */
 void Monitor_task(os_task_param_t task_init_data)
 {
-	MQX_TICK_STRUCT last_print_time;
-	bool print_overflow;
+	MQX_TICK_STRUCT last_update_time;
+	bool overflow;
 
-	_mqx_uint utilization;
-	uint64_t system_time;
-	uint64_t monitor_time;
+	double system_time;
+	double monitor_time;
 
 	MQX_TICK_STRUCT monitor_start_time;
 	MQX_TICK_STRUCT monitor_end_time;
 	MQX_TICK_STRUCT monitor_run_time;
 	MQX_TICK_STRUCT system_run_time;
 
-	_time_init_ticks(&last_print_time, ((_mqx_uint)0)-1);
+	_time_init_ticks(&last_update_time, UINT32_MAX);
 
 	_time_init_ticks(&monitor_start_time, 0);
 	_time_init_ticks(&monitor_end_time, 0);
-	_time_init_ticks(&monitor_run_time, ((_mqx_uint)0)-1);
+	_time_init_ticks(&monitor_run_time, UINT32_MAX);
 	_time_init_ticks(&system_run_time, 0);
   
 #ifdef PEX_USE_RTOS
 	while (1) {
 #endif
-		// Ordering is important in an effort to reduce unaccounted for latency
-
-		_task_stop_preemption();	// prevent preemption altering results
+		// Rate limit updates
 		_time_get_elapsed_ticks(&monitor_start_time);
+		if ((_time_diff_milliseconds(&monitor_start_time,
+				&last_update_time, &overflow) > UPDATE_PERIOD) | overflow) {
+
+			_time_get_elapsed_ticks(&last_update_time);
+
+			// Calculate system running time
 			_time_diff_ticks(&monitor_start_time, &monitor_end_time,
 					&system_run_time);
 
-		system_time = get_hwticks_plus_ticks(&system_run_time);
+			system_time = get_hwticks_plus_ticks(&system_run_time);
 
-		_time_get_elapsed_ticks(&monitor_end_time);
-		_time_diff_ticks(&monitor_end_time, &monitor_start_time,
-				&monitor_run_time);
+			// Print list of tasks
+			task_list_ptr task;
+			dd_active_list(&task);
+			printf("\nACTIVE TASKS:\n\t%-20s %-8s %-10s %-10s\n",
+					"NAME", "ID", "DEADLINE", "CREATION");
+			print_tasks(task);
 
-		monitor_time = get_hwticks_plus_ticks(&monitor_run_time);
+			dd_overdue_list(&task);
+			printf("\nOVERDUE TASKS:\n\t%20s %8s %10s %10s\n",
+					"NAME", "ID", "DEADLINE", "CREATION");
+			print_tasks(task);
 
-		_task_start_preemption();
+			// Calculate our running time
+			_time_get_elapsed_ticks(&monitor_end_time);
+			_time_diff_ticks(&monitor_end_time, &monitor_start_time,
+					&monitor_run_time);
 
-		printf("Processor utilization: %.4f%%\n", 100*system_time/(system_time+monitor_time));
+			monitor_time = get_hwticks_plus_ticks(&monitor_run_time);
+
+			printf("\nProcessor utilization: %.4f%%\n\n", 100*system_time/(system_time+monitor_time));
+		}
 
 		_sched_yield();
 #ifdef PEX_USE_RTOS   

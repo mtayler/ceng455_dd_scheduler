@@ -1,5 +1,5 @@
 /* ###################################################################
-**     Filename    : generator_tasks.h
+**     Filename    : generator_tasks.c
 **     Project     : dd_scheduler
 **     Processor   : MK22FN512VLH12
 **     Component   : Events
@@ -15,7 +15,7 @@
 **
 ** ###################################################################*/
 /*!
-** @file generator_tasks.h
+** @file generator_tasks.c
 ** @version 01.00
 ** @brief
 **         This is user's event module.
@@ -25,27 +25,26 @@
 **  @addtogroup generator_tasks_module generator_tasks module documentation
 **  @{
 */         
-
-#ifndef __generator_tasks_H
-#define __generator_tasks_H
 /* MODULE generator_tasks */
 
-#include "fsl_device_registers.h"
-#include "clockMan1.h"
-#include "pin_init.h"
-#include "osa1.h"
-#include "mqx_ksdk.h"
-#include "uart1.h"
-#include "fsl_hwtimer1.h"
-#include "MainTask.h"
-#include "Generator.h"
-#include "Scheduler.h"
-#include "Monitor.h"
-#include "PeriodicTask.h"
+#include "Cpu.h"
+#include "Events.h"
+#include "rtos_main_task.h"
+#include "generator_task.h"
+#include "scheduler_task.h"
+#include "monitor_task.h"
+#include "periodic_task.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif 
+
+
+/* User includes (#include below this line is not maintained by Processor Expert) */
+#include <mqx.h>
+#include <timer.h>
+
+#include "dd_scheduler.h"
 
 /*
 ** ===================================================================
@@ -56,8 +55,23 @@ extern "C" {
 **     Returns : Nothing
 ** ===================================================================
 */
-void Generator_task(os_task_param_t task_init_data);
+void Generator_task(os_task_param_t task_init_data)
+{
+	MQX_TICK_STRUCT current_time;
+	MQX_TICK_STRUCT release_times[PERIODIC_TASKS];
+	bool overflow;
 
+	while (1) {
+		_time_get_elapsed_ticks(&current_time);
+		for (uint8_t i=0; i < PERIODIC_TASKS; i++) {
+			time_t elapsed = _time_diff_milliseconds(
+					&release_times[i], &current_time, &overflow);
+			if (overflow | (elapsed > periodic_tasks[i].period)) {
+				dd_tcreate(i, periodic_tasks[i].execution_time);
+			}
+		}
+	}
+}
 
 /* END generator_tasks */
 
@@ -65,8 +79,6 @@ void Generator_task(os_task_param_t task_init_data);
 }  /* extern "C" */
 #endif 
 
-#endif 
-/* ifndef __generator_tasks_H*/
 /*!
 ** @}
 */

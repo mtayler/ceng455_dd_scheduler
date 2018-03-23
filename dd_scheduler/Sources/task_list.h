@@ -16,7 +16,7 @@ typedef struct task_list {
 	uint32_t tid;
 	TIME_STRUCT deadline;
 	uint32_t task_type;
-	time_t creation_time;
+	TIME_STRUCT creation_time;
 	_timer_id timer;
 	struct task_list *next_cell;
 	struct task_list *previous_cell;

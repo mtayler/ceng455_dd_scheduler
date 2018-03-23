@@ -56,7 +56,7 @@
 
 /* Application specific header file */
 #include "rtos_main_task.h"
-#include "generator_tasks.h"
+#include "generator_task.h"
 #include "scheduler_task.h"
 #include "monitor_task.h"
 #include "periodic_task.h"

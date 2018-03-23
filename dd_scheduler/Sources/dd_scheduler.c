@@ -7,6 +7,8 @@
 
 #include "dd_scheduler.h"
 
+_pool_id scheduler_msg_pool;
+
 /* ----------------------------------------------------------------------------
  * create_scheduler_request		Fill out boiler plate of a scheduler request msg
  * ----------------------------------------------------------------------------
@@ -21,7 +23,12 @@
  */
 static inline SCHEDULER_RQST_MSG_PTR create_scheduler_request(_queue_id * q) {
 	*q = _msgq_open(MSGQ_FREE_QUEUE, 1);
-	SCHEDULER_RQST_MSG_PTR msg = _msg_alloc(scheduler_message_pool);
+
+	if (scheduler_msg_pool == 0) {
+		scheduler_msg_pool = _msgpool_create(sizeof(SCHEDULER_RQST_MSG),
+				INIT_MESSAGES, GROW_MESSAGES, 0);
+	}
+	SCHEDULER_RQST_MSG_PTR msg = _msg_alloc(scheduler_msg_pool);
 
 	msg->HEADER.TARGET_QID = SCHEDULER_QID;
 	msg->HEADER.SOURCE_QID = *q;
@@ -39,11 +46,11 @@ uint32_t dd_tcreate(_mqx_uint template_index, time_t deadline) {
 	msg->id = template_index;
 
 	if (_msgq_send(msg)) {
-		SCHEDULER_RESP_MSG_PTR msg =
+		SCHEDULER_RESP_MSG_PTR resp =
 				(SCHEDULER_RESP_MSG_PTR)_msgq_receive(local_q, TIMEOUT);
-		if (msg) {
-			_task_id id = msg->result;
-			_msg_free(msg);
+		if (resp) {
+			_task_id id = resp->result;
+			_msg_free(resp);
 			return id;
 		}
 	}
@@ -61,11 +68,11 @@ uint32_t dd_delete(_task_id task_id) {
 	msg->id = task_id;
 
 	if (_msgq_send(msg)) {
-		SCHEDULER_RESP_MSG_PTR msg =
+		SCHEDULER_RESP_MSG_PTR resp =
 				(SCHEDULER_RESP_MSG_PTR)_msgq_receive(local_q, TIMEOUT);
-		if (msg) {
-			result = msg->result;
-			_msg_free(msg);
+		if (resp) {
+			result = resp->result;
+			_msg_free(resp);
 		}
 	}
 	_msgq_close(local_q);
@@ -81,20 +88,20 @@ uint32_t dd_active_list(struct task_list **list) {
 
 	uint32_t result;
 	if (_msgq_send(msg)) {
-		SCHEDULER_RESP_MSG_PTR msg =
+		SCHEDULER_RESP_MSG_PTR resp =
 				(SCHEDULER_RESP_MSG_PTR)_msgq_receive(local_q, TIMEOUT);
-		if (msg) {
-			result = msg->result;
+		if (resp) {
+			result = resp->result;
 			// If rqst okay, check if list pointer is valid
 			if (result == MQX_OK) {
-				if (msg->list != NULL) {
-					list = msg->list;
+				if (resp->list != NULL) {
+					*list = resp->list;
 				} else {
 					// If list pointer invalid, return error
 					result = MQX_INVALID_POINTER;
 				}
 			}
-			_msg_free(msg);
+			_msg_free(resp);
 		}
 	}
 	_msgq_close(local_q);
@@ -110,20 +117,20 @@ uint32_t dd_overdue_list(struct task_list **list) {
 
 	uint32_t result;
 	if (_msgq_send(msg)) {
-		SCHEDULER_RESP_MSG_PTR msg =
+		SCHEDULER_RESP_MSG_PTR resp =
 				(SCHEDULER_RESP_MSG_PTR)_msgq_receive(local_q, TIMEOUT);
-		if (msg) {
-			result = msg->result;
+		if (resp) {
+			result = resp->result;
 			// If rqst okay, check if list pointer is valid
 			if (result == MQX_OK) {
-				if (msg->list != NULL) {
-					list = msg->list;
+				if (resp->list != NULL) {
+					*list = resp->list;
 				} else {
 					// If list pointer invalid, return error
 					result = MQX_INVALID_POINTER;
 				}
 			}
-			_msg_free(msg);
+			_msg_free(resp);
 		}
 	}
 	_msgq_close(local_q);

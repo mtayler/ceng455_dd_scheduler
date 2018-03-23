@@ -30,7 +30,7 @@
 #include "Cpu.h"
 #include "Events.h"
 #include "rtos_main_task.h"
-#include "generator_tasks.h"
+#include "generator_task.h"
 #include "scheduler_task.h"
 #include "monitor_task.h"
 #include "periodic_task.h"
@@ -67,24 +67,20 @@ void main_task(os_task_param_t task_init_data)
 #endif 
   /* End of Processor Expert components initialization.  */
 
-  // install exception ISR handler
-  _int_install_unexpected_isr();
-
   // create kernel log
   _klog_create(2048, 0);
   _klog_control(KLOG_ENABLED | KLOG_CONTEXT_ENABLED |
 //		  	  	KLOG_TASK_QUALIFIED |
 				KLOG_FUNCTIONS_ENABLED |
-				KLOG_TIME_FUNCTIONS |
-				KLOG_IO_FUNCTIONS |
-				KLOG_MESSAGE_FUNCTIONS, TRUE);
+//				KLOG_TIME_FUNCTIONS |
+				KLOG_IO_FUNCTIONS, TRUE);
   _klog_control(KLOG_INTERRUPTS_ENABLED, FALSE);
 
   // Initialize scheduler, generator tasks
   _task_create(0, SCHEDULER_TASK, 0);
   _task_create(0, GENERATOR_TASK, 0);
 
-  _task_abort(_task_get_id());
+  _task_block();
 }
 
 /* END rtos_main_task */

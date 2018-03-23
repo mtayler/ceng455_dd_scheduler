@@ -7,30 +7,19 @@
 
 #include "task_list.h"
 
-//task_list_ptr create_task(task_list_ptr* list, _task_id tid,
-//		time_t deadline, uint32_t task_type, time_t creation_time, _timer_id timer) {
-//
-//	task_list_ptr task = _mem_alloc(sizeof(task_list_t));
-//	task->tid = tid;
-//	task->deadline = deadline;
-//	task->task_type = task_type;
-//	task->creation_time = creation_time;
-//	task->timer = timer;
-//	task->next_cell = NULL;
-//	task->previous_cell = NULL;
-//
-//	return add_task(list, task);
-//}
+#include <stdio.h>
 
 task_list_ptr add_task(task_list_ptr * list, task_list_ptr task) {
-
-	if (list == NULL) {
+	if (*list == NULL) {
 		*list = task;
 		return MQX_OK;
 	}
 
+	task->next_cell = NULL;
+	task->previous_cell = NULL;
+
 	// If new first element
-	if (task->deadline.SECONDS < (*list)->deadline.SECONDS) {
+	if (task->deadline.MILLISECONDS < (*list)->deadline.MILLISECONDS) {
 		task->next_cell = *list;
 		(*list)->previous_cell = task;
 		*list = task;
@@ -63,7 +52,13 @@ task_list_ptr get_task(task_list_ptr list, _task_id tid) {
 }
 
 _mqx_uint delete_task(task_list_ptr * list, _task_id tid) {
+	if (*list == NULL) {
+		printf("delete_task: no tasks in list");
+		return MQX_INVALID_POINTER;
+	}
+
 	task_list_ptr task = *list;
+
 	while (task->tid != tid && task->next_cell != NULL) {
 		task = task->next_cell;
 	}
@@ -71,11 +66,19 @@ _mqx_uint delete_task(task_list_ptr * list, _task_id tid) {
 		return MQX_INVALID_PARAMETER;
 	}
 
-	task_list_ptr p = task->previous_cell;
-	if (p != NULL) {
-		p->next_cell = task->next_cell;
+	if (task == *list) {
+		*list = task->next_cell;
+	} else {
+		task_list_ptr p = task->previous_cell;
+		if (p != NULL) {
+			p->next_cell = task->next_cell;
+		}
+		if (task->next_cell != NULL) {
+			task->next_cell->previous_cell = p;
+		}
 	}
-	task->next_cell->previous_cell = p;
+
+	return MQX_OK;
 }
 
 _mqx_uint sort_tasks(task_list_ptr list);

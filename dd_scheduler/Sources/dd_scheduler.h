@@ -22,7 +22,7 @@
 #define TIMEOUT (1000)
 
 // Set by scheduler task on initialization
-extern _pool_id scheduler_message_pool;
+extern _pool_id scheduler_msg_pool;
 
 enum REQUEST {
 	CreateTask = 0,
@@ -40,7 +40,7 @@ typedef struct scheduler_request_message {
 typedef struct scheduler_response_message {
 	MESSAGE_HEADER_STRUCT HEADER;
 	uint32_t result; // task_id or error
-	void * list; // pointer to start of (overdue) task list for list requests
+	task_list_ptr list; // pointer to start of (overdue) task list for list requests
 } SCHEDULER_RESP_MSG, * SCHEDULER_RESP_MSG_PTR;
 
 

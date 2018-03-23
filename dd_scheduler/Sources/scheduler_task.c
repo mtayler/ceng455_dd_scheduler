@@ -1,4 +1,5 @@
 #include "scheduler_task.h"
+#include "monitor_task.h"
 
 #include <stdio.h>
 
@@ -8,6 +9,7 @@
 #include "Cpu.h"
 #include "Events.h"
 #include "rtos_main_task.h"
+#include "generator_task.h"
 #include "dd_scheduler.h"
 
 #define MAX_QUEUE_SIZE (0)
@@ -17,8 +19,8 @@ static void sched_delete_task(SCHEDULER_RQST_MSG_PTR msg);
 static void sched_task_list(SCHEDULER_RQST_MSG_PTR msg);
 static void sched_overdue_task_list(SCHEDULER_RQST_MSG_PTR msg);
 
-task_list_ptr tasks;
-task_list_ptr overdue_tasks;
+static task_list_ptr tasks = NULL;
+static task_list_ptr overdue_tasks = NULL;
 
 static _pool_id scheduler_resp_pool;
 static _queue_id scheduler_msg_q;
@@ -35,9 +37,6 @@ static _queue_id scheduler_msg_q;
 void Scheduler_task(os_task_param_t task_init_data)
 {
 	// Create the message pools
-	_pool_id __attribute__((__unused__)) scheduler_message_pool = // silence
-			_msgpool_create(sizeof(SCHEDULER_RQST_MSG),           // unused
-					INIT_MESSAGES, GROW_MESSAGES, 0);             // for extern
 	scheduler_resp_pool = _msgpool_create(
 			sizeof(SCHEDULER_RESP_MSG), INIT_MESSAGES, GROW_MESSAGES, 0);
 
@@ -89,10 +88,10 @@ static void deadline_overdue(_timer_id timer, void * task,
 
 static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg) {
 	// Create task
-	_task_id tid = _task_create(0, PERIODICTASK_TASK, msg->id);
+	_task_id tid = _task_create(MQX_NULL_TASK_ID, PERIODICTASK_TASK, msg->id);
 
 	SCHEDULER_RESP_MSG_PTR resp = _msg_alloc(scheduler_resp_pool);
-	resp->HEADER.TARGET_QID = resp->HEADER.SOURCE_QID;
+	resp->HEADER.TARGET_QID = msg->HEADER.SOURCE_QID;
 	resp->HEADER.SOURCE_QID = scheduler_msg_q;
 	resp->HEADER.SIZE = sizeof(SCHEDULER_RESP_MSG);
 
@@ -102,9 +101,9 @@ static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg) {
 	task_list_ptr task = _mem_alloc(sizeof(task_list_t));
 	task->tid = tid;
 	task->deadline = (TIME_STRUCT){
-		now.SECONDS + periodic_tasks[msg->id].execution_time, 0};
+		now.SECONDS, now.MILLISECONDS + periodic_tasks[msg->id].execution_time};
 	task->task_type = 0;
-	task->creation_time = now.SECONDS;
+	task->creation_time = now;
 
 	_msg_free(msg);
 
@@ -133,31 +132,32 @@ static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg) {
 }
 
 static void sched_delete_task(SCHEDULER_RQST_MSG_PTR msg) {
-	// Remove the task list entry
-	task_list_ptr task = get_task(tasks, msg->id);
-	if (task == NULL) {
-		task = get_task(overdue_tasks, msg->id);
-	} else {
-		delete_task(&tasks, task->tid);
-	}
+	// Abort the task
+	_task_abort(msg->id);
 
 	SCHEDULER_RESP_MSG_PTR resp = _msg_alloc(scheduler_resp_pool);
 	resp->HEADER.TARGET_QID = msg->HEADER.SOURCE_QID;
 	resp->HEADER.SOURCE_QID = scheduler_msg_q;
 	resp->HEADER.SIZE = sizeof(SCHEDULER_RESP_MSG);
 
+	// Find task in active or overdue tasks and delete
+	task_list_ptr task = get_task(tasks, msg->id);
+	if (task == NULL) {
+		task = get_task(overdue_tasks, msg->id);
+		if (task != NULL) {
+			delete_task(&tasks, task->tid);
+		} else {
+			_msg_free(msg);
+			// No task was found
+			resp->result = MQX_INVALID_PARAMETER;
+			_msgq_send(resp);
+			return;
+		}
+	} else {
+		delete_task(&tasks, task->tid);
+	}
 	// Can free message now
 	_msg_free(msg);
-
-	// Check if a task was found
-	if (task != NULL) {
-		delete_task(&tasks, task->tid);
-	} else {
-		// Send no task found
-		resp->result = MQX_INVALID_PARAMETER;
-		_msgq_send(resp);
-		return;
-	}
 
 	// Delete any timers
 	_timer_cancel(task->timer);
@@ -176,7 +176,7 @@ static void sched_task_list(SCHEDULER_RQST_MSG_PTR msg) {
 		resp->list = tasks;
 		resp->result = MQX_OK;
 
-		_msgq_send(msg);
+		_msgq_send(resp);
 	}
 	_msg_free(msg);
 
@@ -192,7 +192,7 @@ static void sched_overdue_task_list(SCHEDULER_RQST_MSG_PTR msg) {
 		resp->list = overdue_tasks;
 		resp->result = MQX_OK;
 
-		_msgq_send(msg);
+		_msgq_send(resp);
 	}
 	_msg_free(msg);
 
