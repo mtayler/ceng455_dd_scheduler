@@ -25,16 +25,6 @@
 // Set by scheduler task on initialization
 extern _pool_id scheduler_msg_pool;
 
-MUTEX_ATTR_STRUCT task_mutex_attr = {
-		.SCHED_PROTOCOL = MUTEX_PRIO_INHERIT,
-		.VALID = TRUE,
-		.COUNT = 0,
-		.WAIT_PROTOCOL = MUTEX_SPIN_ONLY
-};
-
-MUTEX_STRUCT active_mutex;
-MUTEX_STRUCT overdue_mutex;
-
 enum REQUEST {
 	CreateTask = 0,
 	DeleteTask,
@@ -46,7 +36,7 @@ typedef struct scheduler_request_message {
 	MESSAGE_HEADER_STRUCT HEADER;
 	enum REQUEST RQST;
 	uint32_t id; // template_index or task_id
-	time_t deadline;
+	uint32_t deadline;
 } SCHEDULER_RQST_MSG, * SCHEDULER_RQST_MSG_PTR;
 
 typedef struct scheduler_response_message {

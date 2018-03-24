@@ -22,8 +22,9 @@ _mqx_uint add_task(task_list_ptr * list, task_list_ptr task) {
 		return MQX_OK;
 	}
 	// Else find where to put it
-	while (t->next_cell != NULL &&
-			task->deadline.SECONDS > t->next_cell->deadline.SECONDS) {
+	while (t->next_cell != NULL
+			&& task->deadline.TICKS[1] > t->next_cell->deadline.TICKS[1]
+			&& task->deadline.TICKS[0] > t->next_cell->deadline.TICKS[0]) {
 		t = t->next_cell;
 	}
 	task->next_cell = t;
@@ -51,10 +52,10 @@ task_list_ptr get_task(task_list_ptr list, _task_id tid) {
 	}
 }
 
-_mqx_uint delete_task(task_list_ptr * list, _task_id tid) {
+task_list_ptr delete_task(task_list_ptr * list, _task_id tid) {
 	if (*list == NULL) {
-		printf("delete_task: no tasks in list");
-		return MQX_INVALID_POINTER;
+		_task_set_error(MQX_INVALID_POINTER);
+		return NULL;
 	}
 
 	task_list_ptr task = *list;
@@ -63,11 +64,13 @@ _mqx_uint delete_task(task_list_ptr * list, _task_id tid) {
 		task = task->next_cell;
 	}
 	if (task->tid != tid) {
-		return MQX_INVALID_PARAMETER;
+		_task_set_error(MQX_INVALID_PARAMETER);
+		return NULL;
 	}
 
 	if (task == *list) {
 		*list = task->next_cell;
+		task->previous_cell = NULL;
 	} else {
 		task_list_ptr p = task->previous_cell;
 		if (p != NULL) {
@@ -78,7 +81,7 @@ _mqx_uint delete_task(task_list_ptr * list, _task_id tid) {
 		}
 	}
 
-	return MQX_OK;
+	return task;
 }
 
 _mqx_uint sort_tasks(task_list_ptr list);
@@ -98,10 +101,9 @@ _mqx_uint update_priorities(task_list_ptr list) {
 		_mqx_uint result = _task_set_priority(list->tid, priority, &prev_priority);
 		if (result != MQX_OK) {
 			// Task ended while we were updating priorities
-			if (result == MQX_INVALID_TASK_ID) {
-				continue;
+			if (result != MQX_INVALID_TASK_ID) {
+				return result;
 			}
-			return result;
 		}
 		list = list->next_cell;
 	}

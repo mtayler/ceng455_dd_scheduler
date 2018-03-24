@@ -68,8 +68,10 @@ void main_task(os_task_param_t task_init_data)
 #endif 
   /* End of Processor Expert components initialization.  */
 
+//  _int_install_unexpected_isr();
+
   // Init timer component
-  _timer_create_component(0, 1024);
+  _timer_create_component(0, 2048);
 
   // create kernel log
   _klog_create(2048, 0);

@@ -270,6 +270,9 @@ Module "GPIO_RGB"  (component fsl_gpio)
    - GPIO_RGB_GPIO_DRV_IsPinIntPending -Reads the individual pin-interrupt status flag.
    - GPIO_RGB_GPIO_DRV_ClearPinIntFlag -Clears the individual GPIO pin interrupt status flag.
 
+Module "HF1"       (component HardFault)
+   - HF1_HardFaultHandler -Hard Fault Handler
+
 Module "Cpu"       (component MK22FN512LH12_4SDK)
    - Cpu_SystemInit -This method configures the oscillator (PLL) that is part of the microcontroller device. SystemInit is 
                 called from startup_device file.

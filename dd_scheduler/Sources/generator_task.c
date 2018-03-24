@@ -66,14 +66,14 @@ void Generator_task(os_task_param_t task_init_data)
 		_time_get_elapsed_ticks(&current_ticks);
 		for (uint8_t i=0; i < PERIODIC_TASKS; i++) {
 
-			time_t elapsed = _time_diff_seconds(
-					&release_times[i], &current_ticks, &overflow);
+			int32_t elapsed = _time_diff_milliseconds(
+					&current_ticks, &release_times[i], &overflow);
 
 			if (overflow | (elapsed > periodic_tasks[i].period)) {
 				_time_get_elapsed_ticks(&release_times[i]);
 
 				_ticks_to_time(&current_ticks, &current_time);
-				dd_tcreate(i, current_time.SECONDS+periodic_tasks[i].execution_time);
+				dd_tcreate(i, periodic_tasks[i].period);
 
 			}
 		}

@@ -14,9 +14,9 @@
 // List of running tasks
 typedef struct task_list {
 	uint32_t tid;
-	TIME_STRUCT deadline;
+	MQX_TICK_STRUCT deadline;
 	uint32_t task_type;
-	TIME_STRUCT creation_time;
+	MQX_TICK_STRUCT creation_time;
 	_timer_id timer;
 	struct task_list *next_cell;
 	struct task_list *previous_cell;
@@ -47,7 +47,7 @@ _mqx_uint add_task(task_list_ptr * list, task_list_ptr task);
  *
  * Removes the task specified by _task_id from the task list
  */
-_mqx_uint delete_task(task_list_ptr * list, _task_id tid);
+task_list_ptr delete_task(task_list_ptr * list, _task_id tid);
 
 /* ----------------------------------------------------------------------------
  * get_task				Get a task from the sorted linked list

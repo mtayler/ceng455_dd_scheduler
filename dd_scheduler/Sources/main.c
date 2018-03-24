@@ -47,6 +47,7 @@
 #include "Monitor.h"
 #include "PeriodicTask.h"
 #include "GPIO_RGB.h"
+#include "HF1.h"
 #if CPU_INIT_CONFIG
   #include "Init_Config.h"
 #endif

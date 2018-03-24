@@ -8,7 +8,7 @@
 **     Repository  : KSDK 1.3.0
 **     Datasheet   : K22P121M120SF7RM, Rev. 1, March 24, 2014
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-23, 16:05, # CodeGen: 21
+**     Date/Time   : 2018-03-23, 20:29, # CodeGen: 24
 **     Abstract    :
 **
 **     Settings    :
@@ -119,6 +119,8 @@ void Components_Init(void)
   GPIO_DRV_Init(NULL,GPIO_RGB_OutConfig0);
   /*! GPIO_RGB Auto initialization end */
   
+  /* ### HardFault "HF1" init code ... */
+  /* Write code here ... */
 }
 #endif /* CPU_COMPONENTS_INIT */
 

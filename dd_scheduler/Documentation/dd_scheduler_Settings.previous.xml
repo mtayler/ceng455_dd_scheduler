@@ -232,5 +232,18 @@
       <EmptySection_DummyValue />
     </Events>
   </Bean>
+  <Bean name="GPIO_RGB" type="fsl_gpio">
+    <Enabled v="Y" />
+    <Properties>
+      <Component_name v="GPIO_RGB" />
+      <Component_version v="1.3.0" />
+    </Properties>
+    <Methods>
+      <EmptySection_DummyValue />
+    </Methods>
+    <Events>
+      <EmptySection_DummyValue />
+    </Events>
+  </Bean>
 </PE_PROJECT_SETTINGS_DOCUMENTATION>
 

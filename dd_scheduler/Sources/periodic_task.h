@@ -25,14 +25,14 @@
 #define PERIODIC_TASKS (3)
 
 struct periodic_task {
-	time_t period;
-	time_t execution_time;
+	uint32_t period;
+	uint32_t execution_time;
 	enum _GPIO_RGB_pinNames pin;
 };
 
 struct periodic_task periodic_tasks[PERIODIC_TASKS] = {
 	  //   1          2          3
-		{14, 2, LEDRGB_RED}, {2, 1, LEDRGB_GREEN}, {30, 2, LEDRGB_BLUE},
+		{1500, 350, LEDRGB_RED}, {500, 100, LEDRGB_GREEN}, {2000, 600, LEDRGB_BLUE},
 };
 
 void PeriodicTask_task(os_task_param_t task_init_data);
