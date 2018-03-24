@@ -41,15 +41,6 @@ static MUTEX_STRUCT tasks_m;
 	printf("\n[%s]: ", __func__); \
 	printf(__VA_ARGS__)
 
-static void print_tasks(task_list_ptr task) {
-	while (task != NULL) {
-		printf("\t%-14s %5lu %4lu %7llu.%06lu %7llu.%06lu\n",
-				_task_get_template_ptr(task->tid)->TASK_NAME, task->tid,
-				task->task_type, (uint64_t)*(task->deadline.TICKS), task->deadline.HW_TICKS,
-				(uint64_t)*(task->creation_time.TICKS), task->creation_time.HW_TICKS);
-		task = task->next_cell;
-	}
-}
 
 /*
 ** ===================================================================
@@ -75,18 +66,6 @@ void Scheduler_task(os_task_param_t task_init_data)
   
 	while (1) {
 		SCHEDULER_RQST_MSG_PTR msg = _msgq_receive(scheduler_msg_q, 0);
-		MQX_TICK_STRUCT time;
-		_time_get_elapsed_ticks(&time);
-		uint64_t now = (uint64_t)*(time.TICKS);
-		uint32_t now_hw = time.HW_TICKS;
-		printf("\n\nCurrent time: %llu.%lu\n", now, now_hw);
-		printf("ACTIVE TASKS:\n\t%-14s %5s %4s %14s %14s\n",
-				"NAME", "ID", "TYPE", "DEADLINE", "CREATION");
-		print_tasks(active_tasks);
-
-		printf("\nOVERDUE TASKS:\n\t%-14s %5s %4s %14s %14s\n\n\n",
-				"NAME", "ID", "TYPE", "DEADLINE", "CREATION");
-		print_tasks(overdue_tasks);
 
 		if (msg) {
 			switch(msg->RQST) {

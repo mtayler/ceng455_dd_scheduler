@@ -70,7 +70,9 @@ task_list_ptr delete_task(task_list_ptr * list, _task_id tid) {
 
 	if (task == *list) {
 		*list = task->next_cell;
-		task->previous_cell = NULL;
+		if (task->next_cell != NULL) {
+			task->next_cell->previous_cell = NULL;
+		}
 	} else {
 		task_list_ptr p = task->previous_cell;
 		if (p != NULL) {

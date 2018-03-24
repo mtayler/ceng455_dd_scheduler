@@ -69,6 +69,7 @@ static void update_monitor(_timer_id timer, void * data,
 
 	double system_time = TICKS_TO_DOUBLE(system_run_time);
 	double monitor_time = TICKS_TO_DOUBLE(counter);
+	_time_init_ticks(&counter, 0);
 	double total_time = system_time+monitor_time;
 
 	printf("\nProcessor utilization: %.4f%%", 100*system_time/(system_time+monitor_time));
