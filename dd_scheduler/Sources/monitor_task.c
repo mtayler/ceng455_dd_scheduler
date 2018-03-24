@@ -47,12 +47,16 @@ extern "C" {
 #include "task_list.h"
 
 #define UPDATE_PERIOD 2000
+#define MOVING_AVG_COUNT 5
 
 #define TICKS_TO_DOUBLE(ticks) ( \
 		((double)((uint64_t)*(ticks.TICKS))*_time_get_hwticks_per_tick() ) \
 			+ ticks.HW_TICKS)
 
 static MQX_TICK_STRUCT counter;
+
+static float util_samples[MOVING_AVG_COUNT] = {0};
+static float overhead_samples[MOVING_AVG_COUNT] = {0};
 
 static void update_monitor(_timer_id timer, void * data,
 		MQX_TICK_STRUCT_PTR monitor_start_time) {
@@ -67,20 +71,46 @@ static void update_monitor(_timer_id timer, void * data,
 	// Calculate system running time
 	_time_diff_ticks(monitor_start_time, &monitor_end_time, &system_run_time);
 
-	double system_time = TICKS_TO_DOUBLE(system_run_time);
-	double monitor_time = TICKS_TO_DOUBLE(counter);
+	float system_time = TICKS_TO_DOUBLE(system_run_time);
+	float monitor_time = TICKS_TO_DOUBLE(counter);
 	_time_init_ticks(&counter, 0);
-	double total_time = system_time+monitor_time;
+	float total_time = system_time+monitor_time;
 
-	printf("\nProcessor utilization: %.4f%%", 100*system_time/(system_time+monitor_time));
+	// update stats
+	float avg = 0;
+	float overhead = 0;
+	// shift sample arrays
+	for (_mqx_uint i=0; i < MOVING_AVG_COUNT-1; i++) {
+		util_samples[i] = util_samples[i+1];
+		avg += util_samples[i];
+
+		overhead_samples[i] = overhead_samples[i+1];
+		overhead += overhead_samples[i];
+	}
+	// calc utilization
+	util_samples[MOVING_AVG_COUNT-1] = 100*system_time/(system_time+monitor_time);
+	avg += util_samples[MOVING_AVG_COUNT-1];
+	avg /= MOVING_AVG_COUNT-1;
+
+	printf("\nProcessor utilization:\n"
+			"\tavg: %2.4f%%\tinst: %2.4f%%\n", avg, util_samples[MOVING_AVG_COUNT-1]);
 
 	_time_get_elapsed_ticks(&monitor_end_time);
+
 	_task_start_preemption();
 
-	// Calculate our running time and overhead (try to be quick)
+
+	// Calculate our running time and overhead (try to be quick since not counting)
 	_time_diff_ticks(&monitor_end_time, monitor_start_time, &monitor_run_time);
+
 	double update_time = TICKS_TO_DOUBLE(monitor_run_time);
-	printf(" Monitor overhead: %.4f%%\n\n", update_time/total_time);
+	// calc overhead
+	overhead_samples[MOVING_AVG_COUNT-1] = update_time/total_time;
+	overhead += overhead_samples[MOVING_AVG_COUNT-1];
+	overhead /= MOVING_AVG_COUNT-1;
+
+	printf("Monitor overhead:\n"
+			"\tavg: %2.4f%%\tinst: %2.4f%%\n\n", overhead, overhead_samples[MOVING_AVG_COUNT-1]);
 }
 
 
