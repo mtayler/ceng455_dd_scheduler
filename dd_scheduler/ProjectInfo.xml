@@ -116,8 +116,8 @@
   </PATHS>
   <FILES>
     <GeneratedCs>
+      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/Aperiodic.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/Cpu.c</PathName>
-      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/GPIO_RGB.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/Generator.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/HF1.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/MainTask.c</PathName>
@@ -126,6 +126,7 @@
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/Scheduler.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/clockMan1.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/fsl_hwtimer1.c</PathName>
+      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/gpio1.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/hardware_init.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/mqx_ksdk.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/osa1.c</PathName>
@@ -267,6 +268,7 @@
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/generator_task.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/main.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/monitor_task.c</PathName>
+      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/os_tasks.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/periodic_task.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/rtos_main_task.c</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/scheduler_task.c</PathName>
@@ -274,8 +276,8 @@
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Static_Code/System/PE_low_level_init.c</PathName>
     </GeneratedCs>
     <GeneratedHs>
+      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/Aperiodic.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/Cpu.h</PathName>
-      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/GPIO_RGB.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/Generator.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/HF1.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/MainTask.h</PathName>
@@ -289,6 +291,7 @@
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/board.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/clockMan1.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/fsl_hwtimer1.h</PathName>
+      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/gpio1.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/mqx_ksdk.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/osa1.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Generated_Code/pin_init.h</PathName>
@@ -425,6 +428,7 @@
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/dd_scheduler.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/generator_task.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/monitor_task.h</PathName>
+      <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/os_tasks.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/periodic_task.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/rtos_main_task.h</PathName>
       <PathName>/Users/mtayler/Documents/ceng455/git/dd_scheduler/dd_scheduler/Sources/scheduler_task.h</PathName>

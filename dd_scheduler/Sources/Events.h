@@ -42,13 +42,26 @@
 #include "Scheduler.h"
 #include "Monitor.h"
 #include "PeriodicTask.h"
-#include "GPIO_RGB.h"
+#include "gpio1.h"
 #include "HF1.h"
+#include "Aperiodic.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif 
 
+
+/*
+** ===================================================================
+**     Interrupt handler : gpio1_PORTB_IRQHandler
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void gpio1_PORTB_IRQHandler(void);
 
 /* END Events */
 

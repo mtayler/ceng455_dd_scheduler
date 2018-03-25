@@ -1,74 +1,83 @@
 /* ###################################################################
-**     Filename    : generator_tasks.h
+**     Filename    : os_tasks.c
 **     Project     : dd_scheduler
 **     Processor   : MK22FN512VLH12
 **     Component   : Events
 **     Version     : Driver 01.00
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-20, 19:27, # CodeGen: 7
+**     Date/Time   : 2018-03-24, 22:43, # CodeGen: 40
 **     Abstract    :
 **         This is user's event module.
 **         Put your event handler code here.
 **     Settings    :
 **     Contents    :
-**         Generator_task - void Generator_task(os_task_param_t task_init_data);
+**         Aperiodic_task - void Aperiodic_task(os_task_param_t task_init_data);
 **
 ** ###################################################################*/
 /*!
-** @file generator_tasks.h
+** @file os_tasks.c
 ** @version 01.00
 ** @brief
 **         This is user's event module.
 **         Put your event handler code here.
 */         
 /*!
-**  @addtogroup generator_tasks_module generator_tasks module documentation
+**  @addtogroup os_tasks_module os_tasks module documentation
 **  @{
 */         
+/* MODULE os_tasks */
 
-#ifndef __generator_tasks_H
-#define __generator_tasks_H
-/* MODULE generator_tasks */
-
-#include "fsl_device_registers.h"
-#include "clockMan1.h"
-#include "pin_init.h"
-#include "osa1.h"
-#include "mqx_ksdk.h"
-#include "uart1.h"
-#include "fsl_hwtimer1.h"
-#include "MainTask.h"
-#include "Generator.h"
-#include "Scheduler.h"
-#include "Monitor.h"
-#include "PeriodicTask.h"
-#include "gpio1.h"
-#include "HF1.h"
-#include "Aperiodic.h"
+#include "Cpu.h"
+#include "Events.h"
+#include "rtos_main_task.h"
+#include "generator_task.h"
+#include "scheduler_task.h"
+#include "monitor_task.h"
+#include "periodic_task.h"
+#include "os_tasks.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif 
 
+
+/* User includes (#include below this line is not maintained by Processor Expert) */
+
 /*
 ** ===================================================================
-**     Callback    : Generator_task
+**     Callback    : Aperiodic_task
 **     Description : Task function entry.
 **     Parameters  :
 **       task_init_data - OS task parameter
 **     Returns : Nothing
 ** ===================================================================
 */
-void Generator_task(os_task_param_t task_init_data);
+void Aperiodic_task(os_task_param_t task_init_data)
+{
+  /* Write your local variable definition here */
+  
+#ifdef PEX_USE_RTOS
+  while (1) {
+#endif
+    /* Write your code here ... */
+    
+    
+    OSA_TimeDelay(10);                 /* Example code (for task release) */
+   
+    
+    
+    
+#ifdef PEX_USE_RTOS   
+  }
+#endif    
+}
 
-/* END generator_tasks */
+/* END os_tasks */
 
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif 
 
-#endif 
-/* ifndef __generator_tasks_H*/
 /*!
 ** @}
 */

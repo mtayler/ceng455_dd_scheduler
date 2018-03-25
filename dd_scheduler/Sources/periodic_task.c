@@ -5,6 +5,7 @@
 #include "scheduler_task.h"
 #include "monitor_task.h"
 #include "periodic_task.h"
+#include "os_tasks.h"
 
 #include "dd_scheduler.h"
 

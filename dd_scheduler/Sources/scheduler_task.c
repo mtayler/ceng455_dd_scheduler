@@ -7,6 +7,7 @@
 #include <mutex.h>
 
 #include "periodic_task.h"
+#include "os_tasks.h"
 #include "task_list.h"
 
 #include "Cpu.h"
@@ -174,6 +175,7 @@ static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg) {
 	uint64_t c_t = *(creation.TICKS);
 	c_t += deadline;
 	*(deadline_ticks.TICKS) = c_t;
+	deadline_ticks.HW_TICKS = 0;
 
 	task->tid = tid;
 	task->deadline = deadline_ticks;
@@ -289,6 +291,7 @@ static void sched_task_list(SCHEDULER_RQST_MSG_PTR msg) {
 	if (resp) {
 		resp->HEADER.TARGET_QID = msg->HEADER.SOURCE_QID;
 		resp->HEADER.SOURCE_QID = scheduler_msg_q;
+		resp->HEADER.SIZE = sizeof(SCHEDULER_RESP_MSG);
 		resp->list = active_tasks;
 		resp->result = MQX_OK;
 
@@ -309,6 +312,7 @@ static void sched_overdue_task_list(SCHEDULER_RQST_MSG_PTR msg) {
 	if (resp) {
 		resp->HEADER.TARGET_QID = msg->HEADER.SOURCE_QID;
 		resp->HEADER.SOURCE_QID = scheduler_msg_q;
+		resp->HEADER.SIZE = sizeof(SCHEDULER_RESP_MSG);
 		resp->list = overdue_tasks;
 		resp->result = MQX_OK;
 

@@ -7,7 +7,7 @@
 **     Version     : Component 1.2.0, Driver 1.4, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-23, 16:05, # CodeGen: 21
+**     Date/Time   : 2018-03-24, 22:43, # CodeGen: 40
 **     Abstract    :
 **
 **     Settings    :
@@ -988,6 +988,12 @@ void init_gpio_pins(uint32_t instance)
       PORT_HAL_SetSlewRateMode(PORTA,2UL,kPortSlowSlewRate);
       PORT_HAL_SetOpenDrainCmd(PORTA,2UL,true);
       break;
+    case PORTB_IDX:                     /* PORTB_IDX */
+      /* Affects PORTB_PCR17 register */
+      PORT_HAL_SetPullMode(PORTB,17UL,kPortPullDown);
+      PORT_HAL_SetMuxMode(PORTB,17UL,kPortMuxAsGpio);
+      PORT_HAL_SetPullCmd(PORTB,17UL,true);
+      break;
     case PORTD_IDX:                     /* PORTD_IDX */
       /* Affects PORTD_PCR5 register */
       PORT_HAL_SetDriveStrengthMode(PORTD,5UL,kPortLowDriveStrength);  
@@ -1011,6 +1017,9 @@ void deinit_gpio_pins(uint32_t instance)
     case PORTA_IDX:                     /* PORTA_IDX */
       PORT_HAL_SetMuxMode(PORTA,1UL,kPortPinDisabled);
       PORT_HAL_SetMuxMode(PORTA,2UL,kPortPinDisabled);
+      break;
+    case PORTB_IDX:                     /* PORTB_IDX */
+      PORT_HAL_SetMuxMode(PORTB,17UL,kPortPinDisabled);
       break;
     case PORTD_IDX:                     /* PORTD_IDX */
       PORT_HAL_SetMuxMode(PORTD,5UL,kPortPinDisabled);

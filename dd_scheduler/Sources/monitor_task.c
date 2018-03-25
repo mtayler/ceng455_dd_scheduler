@@ -34,6 +34,7 @@
 #include "scheduler_task.h"
 #include "monitor_task.h"
 #include "periodic_task.h"
+#include "os_tasks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,13 +66,43 @@ void monitor_add_overhead_ticks(MQX_TICK_STRUCT_PTR diff) {
 	*(overhead_counter.TICKS) += (uint64_t)*(diff->TICKS);
 }
 
+static void print_tasks(task_list_ptr active, task_list_ptr overdue) {
+	_mqx_uint priority;
+	_mqx_uint i=0;
+	for (task_list_ptr task = active; i < 1; task=overdue,i++) {
+		while (task != NULL) {
+			_task_get_priority(task->tid, &priority);
+			printf("    %3lu  0x%-5lx   %4lu %8llu.%06lu %8llu.%06lu  %4c\n", priority,
+					task->tid, task->task_type, (uint64_t)*(task->deadline.TICKS),
+					task->deadline.HW_TICKS, (uint64_t)*(task->creation_time.TICKS),
+					task->creation_time.HW_TICKS, i ? 'Y' : 'N');
+			task = task->next_cell;
+		}
+	}
+}
+
 // Helper function to print the monitor tracked stats
 static inline void update_monitor(_timer_id timer, void * data,
 		MQX_TICK_STRUCT_PTR monitor_start_time) {
 	static MQX_TICK_STRUCT monitor_end_time;
 
+	// Get pointers to task lists: most time will be spent in the scheduler.c
+	// code which is counted as overhead
+	task_list_ptr active_tasks;
+	task_list_ptr overdue_tasks;
+	dd_active_list(&active_tasks);
+	dd_overdue_list(&overdue_tasks);
+
 	// Being preempted skews timing stats
 	_task_stop_preemption();
+
+	printf("\n\n\nCURRENT TIME: %8llu.%lu\n", (uint64_t)*(monitor_start_time->TICKS),
+			monitor_start_time->HW_TICKS);
+	// Print task lists
+	printf("TASKS:\n    %3s  %-7s   %4s %15s %15s  %4s\n",
+			"PRI", "TASK ID", "TYPE", "DEADLINE", "CREATION", "OVER");;
+	print_tasks(active_tasks, overdue_tasks);
+
 
 	MQX_TICK_STRUCT monitor_run_time;
 	MQX_TICK_STRUCT system_run_time;
@@ -103,7 +134,7 @@ static inline void update_monitor(_timer_id timer, void * data,
 	util /= MOVING_AVG_COUNT;
 
 	printf("\nProcessor utilization:\n"
-			"\tavg: %2.4f%%\tinst: %2.4f%%\n", util, util_samples[MOVING_AVG_COUNT-1]);
+			"\taverage: %2.4f%%\tinstant: %2.4f%%\n", util, util_samples[MOVING_AVG_COUNT-1]);
 
 	_time_get_elapsed_ticks(&monitor_end_time);
 
@@ -122,7 +153,7 @@ static inline void update_monitor(_timer_id timer, void * data,
 	overhead /= MOVING_AVG_COUNT;
 
 	printf("Total overhead:\n"
-			"\tavg: %2.4f%%\tinst: %2.4f%%\n\n", overhead, overhead_samples[MOVING_AVG_COUNT-1]);
+			"\taverage: %2.4f%%\tinstant: %2.4f%%\n\n\n", overhead, overhead_samples[MOVING_AVG_COUNT-1]);
 }
 
 

@@ -34,6 +34,7 @@
 #include "scheduler_task.h"
 #include "monitor_task.h"
 #include "periodic_task.h"
+#include "os_tasks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,6 +42,23 @@ extern "C" {
 
 
 /* User includes (#include below this line is not maintained by Processor Expert) */
+
+/*
+** ===================================================================
+**     Interrupt handler : gpio1_PORTB_IRQHandler
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void gpio1_PORTB_IRQHandler(void)
+{
+  /* Clear interrupt flag.*/
+  PORT_HAL_ClearPortIntFlag(PORTB_BASE_PTR);
+  /* Write your code here ... */
+}
 
 /* END Events */
 

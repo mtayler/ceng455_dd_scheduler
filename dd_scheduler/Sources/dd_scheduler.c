@@ -80,7 +80,7 @@ uint32_t dd_delete(_task_id task_id) {
 	return result;
 }
 
-uint32_t dd_active_list(struct task_list **list) {
+uint32_t dd_active_list(task_list_ptr *list) {
 	_queue_id local_q;
 	SCHEDULER_RQST_MSG_PTR msg;
 
@@ -105,7 +105,7 @@ uint32_t dd_active_list(struct task_list **list) {
 	return result;
 }
 
-uint32_t dd_overdue_list(struct task_list **list) {
+uint32_t dd_overdue_list(task_list_ptr *list) {
 	_queue_id local_q;
 	SCHEDULER_RQST_MSG_PTR msg;
 
@@ -120,12 +120,7 @@ uint32_t dd_overdue_list(struct task_list **list) {
 			result = resp->result;
 			// If rqst okay, check if list pointer is valid
 			if (result == MQX_OK) {
-				if (resp->list != NULL) {
-					*list = resp->list;
-				} else {
-					// If list pointer invalid, return error
-					result = MQX_INVALID_POINTER;
-				}
+				*list = resp->list;
 			}
 			_msg_free(resp);
 		}

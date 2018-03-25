@@ -34,6 +34,7 @@
 #include "scheduler_task.h"
 #include "monitor_task.h"
 #include "periodic_task.h"
+#include "os_tasks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,18 +61,15 @@ void Generator_task(os_task_param_t task_init_data)
   MQX_TICK_STRUCT start_ticks;
   MQX_TICK_STRUCT end_ticks;
   MQX_TICK_STRUCT diff_ticks;
+  MQX_TICK_STRUCT elapsed;
   MQX_TICK_STRUCT release_times[PERIODIC_TASKS];
-  bool overflow = FALSE;
 
   while (1) {
 	_task_stop_preemption();	// don't let scheduler interrupt for timing
 	_time_get_elapsed_ticks(&start_ticks);
 	for (uint8_t i=0; i < PERIODIC_TASKS; i++) {
-
-		int32_t elapsed = _time_diff_milliseconds(
-				&start_ticks, &release_times[i], &overflow);
-
-		if (overflow | (elapsed > periodic_tasks[i].period)) {
+		_time_diff_ticks(&start_ticks, &release_times[i], &elapsed);
+		if (elapsed.TICKS[0] > periodic_tasks[i].period) {
 			_time_get_elapsed_ticks(&release_times[i]);
 			dd_tcreate(i, periodic_tasks[i].period);
 		}
@@ -81,7 +79,6 @@ void Generator_task(os_task_param_t task_init_data)
 	monitor_add_overhead_ticks(&diff_ticks);
 
 	_task_start_preemption();	// done with timing
-	_time_delay(1);				// wait for at least a millisecond (update res)
   }
 }
 

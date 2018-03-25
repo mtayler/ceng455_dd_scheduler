@@ -34,6 +34,7 @@
 #include "scheduler_task.h"
 #include "monitor_task.h"
 #include "periodic_task.h"
+#include "os_tasks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,9 +70,14 @@ void main_task(os_task_param_t task_init_data)
   /* End of Processor Expert components initialization.  */
 
 //  _int_install_unexpected_isr();
+  _mqx_uint old_prior;
 
   // Init timer component
   _timer_create_component(0, 2048);
+  // Priority of 0 sets default priority, not actual 0 priority.
+  // Timer task's id is the next free ID, which will be our ID plus one.
+  _task_set_priority(_task_get_id()+1,
+		  _sched_get_max_priority(MQX_SCHED_FIFO)+1, &old_prior);
 
   // create kernel log
   _klog_create(2048, 0);
@@ -82,7 +88,6 @@ void main_task(os_task_param_t task_init_data)
   _klog_control(KLOG_INTERRUPTS_ENABLED, FALSE);
 
   // Initialize scheduler, generator tasks
-  _mqx_uint old_prior;
   _task_id sched = _task_create(0, SCHEDULER_TASK, 0);
   _task_set_priority(sched, _sched_get_max_priority(MQX_SCHED_FIFO), &old_prior);
   _task_id gen = _task_create(0, GENERATOR_TASK, 0);

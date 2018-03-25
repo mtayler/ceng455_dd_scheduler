@@ -76,27 +76,27 @@ uint32_t dd_delete(_task_id task_id);
  * dd_active_listq		Return reference to list of active tasks
  * ----------------------------------------------------------------------------
  * Arguments:
- * 	task_list **list	Pointer to the pointer where the start of the task list
+ * 	task_list_ptr *list	Pointer to the pointer where the start of the task list
  * 							is assigned.
  * Returns:
  * 	uint32_t			MQX_OK if successful, otherwise an error
  *
  * Get a pointer to the start of the active task list
  */
-uint32_t dd_active_list(struct task_list **list);
+uint32_t dd_active_list(task_list_ptr *list);
 
 /* ----------------------------------------------------------------------------
  * dd_overdue_list		Return reference to list of overdue tasks
  * ----------------------------------------------------------------------------
  * Arguments:
- * 	task_list **list	Pointer to the pointer where the start of the overdue
+ * 	task_list_ptr *list	Pointer to the pointer where the start of the overdue
  * 							task list is assigned.
  * Returns:
  * 	uint32_t			MQX_OK if successful, otherwise an error
  *
  * Get a pointer to the start of the overdue task list
  */
-uint32_t dd_overdue_list(struct task_list **list);
+uint32_t dd_overdue_list(task_list_ptr *list);
 
 
 #endif /* SOURCES_DD_SCHEDULER_H_ */

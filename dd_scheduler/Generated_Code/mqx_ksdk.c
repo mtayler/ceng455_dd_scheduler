@@ -7,7 +7,7 @@
 **     Version     : Component 1.2.0, Driver 01.00, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-23, 15:07, # CodeGen: 20
+**     Date/Time   : 2018-03-24, 22:43, # CodeGen: 40
 **
 **     Copyright : 1997 - 2015 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -60,11 +60,13 @@
 #include "scheduler_task.h"
 #include "monitor_task.h"
 #include "periodic_task.h"
+#include "os_tasks.h"
 #include "MainTask.h"
 #include "Generator.h"
 #include "Scheduler.h"
 #include "Monitor.h"
 #include "PeriodicTask.h"
+#include "Aperiodic.h"
 extern void * kernel_data_prv;
 #if MQXCFG_PREALLOCATED_SYSTEM_STACKS
 extern uint8_t mqx_interrupt_stack[];
@@ -129,6 +131,17 @@ const TASK_TEMPLATE_STRUCT MQX_template_list[] =
     /* Stack size                     */  PERIODICTASK_TASK_STACK_SIZE,
     /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(PERIODICTASK_TASK_PRIORITY)),
     /* Task name                      */  PERIODICTASK_TASK_NAME,
+    /* Task attributes                */  (0),
+    /* Task parameter                 */  (uint32_t)(NULL),
+    /* Task time slice                */  (uint32_t)(0U)
+  },       
+  /* Task: Aperiodic */
+  {
+    /* Task number                    */  APERIODIC_TASK,
+    /* Entry point                    */  (TASK_FPTR)Aperiodic_task,
+    /* Stack size                     */  APERIODIC_TASK_STACK_SIZE,
+    /* Task priority                  */  (PRIORITY_OSA_TO_RTOS(APERIODIC_TASK_PRIORITY)),
+    /* Task name                      */  APERIODIC_TASK_NAME,
     /* Task attributes                */  (0),
     /* Task parameter                 */  (uint32_t)(NULL),
     /* Task time slice                */  (uint32_t)(0U)

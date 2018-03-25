@@ -42,8 +42,9 @@
 #include "Scheduler.h"
 #include "Monitor.h"
 #include "PeriodicTask.h"
-#include "GPIO_RGB.h"
+#include "gpio1.h"
 #include "HF1.h"
+#include "Aperiodic.h"
 
 #ifdef __cplusplus
 extern "C" {

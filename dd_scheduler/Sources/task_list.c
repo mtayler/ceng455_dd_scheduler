@@ -15,23 +15,42 @@ _mqx_uint add_task(task_list_ptr * list, task_list_ptr task) {
 	task->next_cell = NULL;
 	task->previous_cell = NULL;
 
-	task_list_ptr t = *list;
-	// if the list is empty
-	if (t == NULL) {
+	// I love sorting less than. So much fun.
+
+	task_list_ptr iter = *list;
+
+	// If list is empty we're the head
+	if (iter == NULL) {
 		*list = task;
 		return MQX_OK;
 	}
-	// Else find where to put it
-	while (t->next_cell != NULL
-			&& task->deadline.TICKS[1] > t->next_cell->deadline.TICKS[1]
-			&& task->deadline.TICKS[0] > t->next_cell->deadline.TICKS[0]) {
-		t = t->next_cell;
-	}
-	task->next_cell = t;
-	task->previous_cell = t->previous_cell;
-	t->previous_cell = task;
 
-	// If we're at the start, update *list
+	// If only one item and we're less than we're the new start
+	if (iter->next_cell == NULL &&
+			task->deadline.TICKS[1] <= iter->deadline.TICKS[1] &&
+			task->deadline.TICKS[0] < iter->deadline.TICKS[0]) {
+		task->next_cell = iter;
+		iter->previous_cell = task;
+
+		if (task->previous_cell == NULL) {
+			*list = task;
+		}
+		return MQX_OK;
+	}
+
+	// Otherwise figure out where we go
+	while (iter->next_cell != NULL &&
+			task->deadline.TICKS[1] <= iter->deadline.TICKS[1] &&
+			task->deadline.TICKS[0] < iter->deadline.TICKS[0]) {
+		iter = iter->next_cell;
+	}
+
+	if (iter->next_cell != NULL) {
+		iter->next_cell->previous_cell = task;
+	}
+	iter->next_cell = task;
+	task->previous_cell = iter;
+
 	if (task->previous_cell == NULL) {
 		*list = task;
 	}

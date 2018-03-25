@@ -8,7 +8,7 @@
 **     Repository  : KSDK 1.3.0
 **     Datasheet   : K22P121M120SF7RM, Rev. 1, March 24, 2014
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-23, 20:29, # CodeGen: 24
+**     Date/Time   : 2018-03-24, 22:43, # CodeGen: 40
 **     Abstract    :
 **
 **     Settings    :
@@ -72,6 +72,7 @@
 #include "scheduler_task.h"
 #include "monitor_task.h"
 #include "periodic_task.h"
+#include "os_tasks.h"
 
 
 #ifdef __cplusplus
@@ -115,9 +116,11 @@ void Components_Init(void)
   /*! Monitor Auto initialization start */ 
   (void)Monitor_Init();
   /*! Monitor Auto initialization end */                       
-  /*! GPIO_RGB Auto initialization start */
-  GPIO_DRV_Init(NULL,GPIO_RGB_OutConfig0);
-  /*! GPIO_RGB Auto initialization end */
+  /*! gpio1 Auto initialization start */
+  NVIC_SetPriority(PORTB_IRQn, 7U);
+  OSA_InstallIntHandler(PORTB_IRQn,  gpio1_PORTB_IRQHandler);
+  GPIO_DRV_Init(GPIO_InpConfig0,gpio1_OutConfig0);
+  /*! gpio1 Auto initialization end */
   
   /* ### HardFault "HF1" init code ... */
   /* Write code here ... */
