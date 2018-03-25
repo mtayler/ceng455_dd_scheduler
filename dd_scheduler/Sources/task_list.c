@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 
-_mqx_uint add_task(task_list_ptr * list, task_list_ptr task) {
+void add_task(task_list_ptr * list, task_list_ptr task) {
 	task->next_cell = NULL;
 	task->previous_cell = NULL;
 
@@ -22,20 +22,18 @@ _mqx_uint add_task(task_list_ptr * list, task_list_ptr task) {
 	// If list is empty we're the head
 	if (iter == NULL) {
 		*list = task;
-		return MQX_OK;
+		return;
 	}
 
-	// If only one item and we're less than we're the new start
+	// If only one item and we're less than, we're the new start
 	if (iter->next_cell == NULL &&
 			task->deadline.TICKS[1] <= iter->deadline.TICKS[1] &&
 			task->deadline.TICKS[0] < iter->deadline.TICKS[0]) {
 		task->next_cell = iter;
 		iter->previous_cell = task;
 
-		if (task->previous_cell == NULL) {
-			*list = task;
-		}
-		return MQX_OK;
+		*list = task;
+		return;
 	}
 
 	// Otherwise figure out where we go
@@ -48,14 +46,11 @@ _mqx_uint add_task(task_list_ptr * list, task_list_ptr task) {
 	if (iter->next_cell != NULL) {
 		iter->next_cell->previous_cell = task;
 	}
+	task->next_cell = iter->next_cell;
 	iter->next_cell = task;
 	task->previous_cell = iter;
 
-	if (task->previous_cell == NULL) {
-		*list = task;
-	}
-
-	return MQX_OK;
+	return;
 }
 
 task_list_ptr get_task(task_list_ptr list, _task_id tid) {
@@ -87,25 +82,17 @@ task_list_ptr delete_task(task_list_ptr * list, _task_id tid) {
 		return NULL;
 	}
 
-	if (task == *list) {
-		*list = task->next_cell;
-		if (task->next_cell != NULL) {
-			task->next_cell->previous_cell = NULL;
-		}
+	// Bridge next and last cell if needed
+	if (task->previous_cell != NULL) {
+		task->previous_cell->next_cell = task->next_cell;
 	} else {
-		task_list_ptr p = task->previous_cell;
-		if (p != NULL) {
-			p->next_cell = task->next_cell;
-		}
-		if (task->next_cell != NULL) {
-			task->next_cell->previous_cell = p;
-		}
+		*list = task->next_cell;
 	}
-
+	if (task->next_cell != NULL) {
+		task->next_cell->previous_cell = task->previous_cell;
+	}
 	return task;
 }
-
-_mqx_uint sort_tasks(task_list_ptr list);
 
 _mqx_uint update_priorities(task_list_ptr list) {
 	_mqx_uint priority;
@@ -121,10 +108,7 @@ _mqx_uint update_priorities(task_list_ptr list) {
 
 		_mqx_uint result = _task_set_priority(list->tid, priority, &prev_priority);
 		if (result != MQX_OK) {
-			// Task ended while we were updating priorities
-			if (result != MQX_INVALID_TASK_ID) {
-				return result;
-			}
+			return result;
 		}
 		list = list->next_cell;
 	}

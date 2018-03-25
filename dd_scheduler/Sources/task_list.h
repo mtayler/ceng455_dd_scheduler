@@ -30,11 +30,11 @@ typedef struct task_list {
  * 	task_list_ptr task		Task to add to the list, next_cell and previous_cell
  * 								will be overwritten by this function.
  * Returns:
- * 	_mqx_uint				MQX_OK if success, otherwise error.
+ * 	Nothing
  *
  * Adds the task to the list of tasks, sorted by deadline.
  */
-_mqx_uint add_task(task_list_ptr * list, task_list_ptr task);
+void add_task(task_list_ptr * list, task_list_ptr task);
 
 /* ----------------------------------------------------------------------------
  * delete_task				Add a task to the sorted linked list
@@ -62,8 +62,6 @@ task_list_ptr delete_task(task_list_ptr * list, _task_id tid);
  * Get the pointer to a task_list item with specified ID.
  */
 task_list_ptr get_task(task_list_ptr list, _task_id tid);
-
-_mqx_uint sort_tasks(task_list_ptr list);
 
 /* ----------------------------------------------------------------------------
  * update_priorities		Set priority of each task in the list

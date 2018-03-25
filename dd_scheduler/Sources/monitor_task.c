@@ -83,21 +83,28 @@ static void print_tasks(task_list_ptr active, task_list_ptr overdue) {
 
 // Helper function to print the monitor tracked stats
 static inline void update_monitor(_timer_id timer, void * data,
-		MQX_TICK_STRUCT_PTR monitor_start_time) {
+		MQX_TICK_STRUCT_PTR timer_time) {
+	MQX_TICK_STRUCT monitor_start_time;
 	static MQX_TICK_STRUCT monitor_end_time;
 
 	// Get pointers to task lists: most time will be spent in the scheduler.c
 	// code which is counted as overhead
 	task_list_ptr active_tasks;
 	task_list_ptr overdue_tasks;
-	dd_active_list(&active_tasks);
-	dd_overdue_list(&overdue_tasks);
+	assert(dd_active_list(&active_tasks) == MQX_OK);
+	assert(dd_overdue_list(&overdue_tasks) == MQX_OK);
 
 	// Being preempted skews timing stats
 	_task_stop_preemption();
+	// We don't want to count time waiting for scheduler to respond with task
+	// list (counts towards overhead by scheduler)
+	_time_get_elapsed_ticks(&monitor_start_time);
 
-	printf("\n\n\nCURRENT TIME: %8llu.%lu\n", (uint64_t)*(monitor_start_time->TICKS),
-			monitor_start_time->HW_TICKS);
+	// Clear screen and home cursor
+	puts("\033[2J\033[H");
+
+	printf("\n\n\nCURRENT TIME: %8llu.%lu\n", (uint64_t)*(monitor_start_time.TICKS),
+			monitor_start_time.HW_TICKS);
 	// Print task lists
 	printf("TASKS:\n    %3s  %-7s   %4s %15s %15s  %4s\n",
 			"PRI", "TASK ID", "TYPE", "DEADLINE", "CREATION", "OVER");;
@@ -108,7 +115,7 @@ static inline void update_monitor(_timer_id timer, void * data,
 	MQX_TICK_STRUCT system_run_time;
 
 	// Calculate system running time
-	_time_diff_ticks(monitor_start_time, &monitor_end_time, &system_run_time);
+	_time_diff_ticks(&monitor_start_time, &monitor_end_time, &system_run_time);
 
 	float system_time = TICKS_TO_DOUBLE(system_run_time);
 	float idle_time = TICKS_TO_DOUBLE(counter);
@@ -142,7 +149,7 @@ static inline void update_monitor(_timer_id timer, void * data,
 
 
 	// Calculate overhead with update run time (be quick since not timing)
-	_time_diff_ticks(&monitor_end_time, monitor_start_time, &monitor_run_time);
+	_time_diff_ticks(&monitor_end_time, &monitor_start_time, &monitor_run_time);
 
 	// Time including
 	double total_overhead_time =

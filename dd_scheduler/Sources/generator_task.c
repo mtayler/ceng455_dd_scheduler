@@ -71,7 +71,8 @@ void Generator_task(os_task_param_t task_init_data)
 		_time_diff_ticks(&start_ticks, &release_times[i], &elapsed);
 		if (elapsed.TICKS[0] > periodic_tasks[i].period) {
 			_time_get_elapsed_ticks(&release_times[i]);
-			dd_tcreate(i, periodic_tasks[i].period);
+			uint32_t tid = dd_tcreate(i, periodic_tasks[i].period);
+			assert(tid != MQX_NULL_TASK_ID);
 		}
 	}
 	_time_get_elapsed_ticks(&end_ticks);
@@ -79,6 +80,7 @@ void Generator_task(os_task_param_t task_init_data)
 	monitor_add_overhead_ticks(&diff_ticks);
 
 	_task_start_preemption();	// done with timing
+	_time_delay(1);
   }
 }
 

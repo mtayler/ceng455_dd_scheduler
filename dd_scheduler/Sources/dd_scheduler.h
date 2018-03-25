@@ -9,6 +9,7 @@
 #define SOURCES_DD_SCHEDULER_H_
 
 #include <stdint.h>
+#include <stdio.h>
 #include <mqx.h>
 #include <message.h>
 #include <mutex.h>
@@ -20,7 +21,11 @@
 
 #define SCHEDULER_QID (3)
 
-#define TIMEOUT (1000)
+#define TIMEOUT (0)
+
+#define debug(...) \
+	printf("\n[%s]: ", __func__); \
+	printf(__VA_ARGS__)
 
 // Set by scheduler task on initialization
 extern _pool_id scheduler_msg_pool;
@@ -41,7 +46,8 @@ typedef struct scheduler_request_message {
 
 typedef struct scheduler_response_message {
 	MESSAGE_HEADER_STRUCT HEADER;
-	uint32_t result; // task_id or error
+	uint32_t result; // task_id
+	uint32_t error;
 	task_list_ptr list; // pointer to start of (overdue) task list for list requests
 } SCHEDULER_RESP_MSG, * SCHEDULER_RESP_MSG_PTR;
 
