@@ -195,12 +195,12 @@ void Monitor_task(os_task_param_t task_init_data)
 	MQX_TICK_STRUCT now;
 	bool overflow = FALSE;
 	while (1) {
-		_int_disable();
+		_task_stop_preemption();
 		_time_get_elapsed_ticks(&now);
 		int32_t diff = _time_diff_microseconds(&now, &last_update, &overflow);
 		_time_add_usec_to_ticks(&counter, diff);	// assume no overflow
 		_time_get_elapsed_ticks(&last_update);
-		_int_enable();
+		_task_start_preemption();
 		_time_delay(1);
 	}
 }

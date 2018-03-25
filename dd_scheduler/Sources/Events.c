@@ -29,12 +29,6 @@
 
 #include "Cpu.h"
 #include "Events.h"
-#include "rtos_main_task.h"
-#include "generator_task.h"
-#include "scheduler_task.h"
-#include "monitor_task.h"
-#include "periodic_task.h"
-#include "os_tasks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,10 +36,11 @@ extern "C" {
 
 
 /* User includes (#include below this line is not maintained by Processor Expert) */
+#include <stdio.h>
 
 /*
 ** ===================================================================
-**     Interrupt handler : gpio1_PORTB_IRQHandler
+**     Interrupt handler : gpio1_PORTE_IRQHandler
 **
 **     Description :
 **         User interrupt service routine. 
@@ -53,11 +48,12 @@ extern "C" {
 **     Returns     : Nothing
 ** ===================================================================
 */
-void gpio1_PORTB_IRQHandler(void)
+void gpio1_PORTE_IRQHandler(void)
 {
   /* Clear interrupt flag.*/
-  PORT_HAL_ClearPortIntFlag(PORTB_BASE_PTR);
+  PORT_HAL_ClearPortIntFlag(PORTE_BASE_PTR);
   /* Write your code here ... */
+  printf("Interrupt");
 }
 
 /* END Events */

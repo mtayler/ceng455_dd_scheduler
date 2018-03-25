@@ -63,6 +63,18 @@ extern "C" {
 */
 void gpio1_PORTB_IRQHandler(void);
 
+/*
+** ===================================================================
+**     Interrupt handler : gpio1_PORTE_IRQHandler
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+void gpio1_PORTE_IRQHandler(void);
+
 /* END Events */
 
 #ifdef __cplusplus
