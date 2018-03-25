@@ -32,7 +32,7 @@ struct periodic_task {
 
 struct periodic_task periodic_tasks[PERIODIC_TASKS] = {
 	  //   1          2          3
-		{1500, 350, LEDRGB_RED}, {500, 100, LEDRGB_GREEN}, {2000, 600, LEDRGB_BLUE},
+		{1500, 350, LEDRGB_RED}, {200, 100, LEDRGB_GREEN}, {2000, 600, LEDRGB_BLUE},
 };
 
 void PeriodicTask_task(os_task_param_t task_init_data);

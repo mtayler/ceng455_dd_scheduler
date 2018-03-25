@@ -53,12 +53,20 @@ extern "C" {
 		((double)((uint64_t)*(ticks.TICKS))*_time_get_hwticks_per_tick() ) \
 			+ ticks.HW_TICKS)
 
+
 static MQX_TICK_STRUCT counter;
+static MQX_TICK_STRUCT overhead_counter;
 
 static float util_samples[MOVING_AVG_COUNT] = {0};
 static float overhead_samples[MOVING_AVG_COUNT] = {0};
 
-static void update_monitor(_timer_id timer, void * data,
+
+void monitor_add_overhead_ticks(MQX_TICK_STRUCT_PTR diff) {
+	*(overhead_counter.TICKS) += (uint64_t)*(diff->TICKS);
+}
+
+// Helper function to print the monitor tracked stats
+static inline void update_monitor(_timer_id timer, void * data,
 		MQX_TICK_STRUCT_PTR monitor_start_time) {
 	static MQX_TICK_STRUCT monitor_end_time;
 
@@ -72,44 +80,48 @@ static void update_monitor(_timer_id timer, void * data,
 	_time_diff_ticks(monitor_start_time, &monitor_end_time, &system_run_time);
 
 	float system_time = TICKS_TO_DOUBLE(system_run_time);
-	float monitor_time = TICKS_TO_DOUBLE(counter);
-	_time_init_ticks(&counter, 0);
-	float total_time = system_time+monitor_time;
+	float idle_time = TICKS_TO_DOUBLE(counter);
+	counter = _mqx_zero_tick_struct;  // reset counter
+	float extern_overhead_time = TICKS_TO_DOUBLE(overhead_counter);
+	overhead_counter = _mqx_zero_tick_struct;  // reset counter
+	float total_time = system_time+idle_time+extern_overhead_time;
 
 	// update stats
-	float avg = 0;
+	float util = 0;
 	float overhead = 0;
 	// shift sample arrays
 	for (_mqx_uint i=0; i < MOVING_AVG_COUNT-1; i++) {
 		util_samples[i] = util_samples[i+1];
-		avg += util_samples[i];
+		util += util_samples[i];
 
 		overhead_samples[i] = overhead_samples[i+1];
 		overhead += overhead_samples[i];
 	}
 	// calc utilization
-	util_samples[MOVING_AVG_COUNT-1] = 100*system_time/(system_time+monitor_time);
-	avg += util_samples[MOVING_AVG_COUNT-1];
-	avg /= MOVING_AVG_COUNT-1;
+	util_samples[MOVING_AVG_COUNT-1] = 100*(1 - idle_time/total_time);
+	util += util_samples[MOVING_AVG_COUNT-1];
+	util /= MOVING_AVG_COUNT;
 
 	printf("\nProcessor utilization:\n"
-			"\tavg: %2.4f%%\tinst: %2.4f%%\n", avg, util_samples[MOVING_AVG_COUNT-1]);
+			"\tavg: %2.4f%%\tinst: %2.4f%%\n", util, util_samples[MOVING_AVG_COUNT-1]);
 
 	_time_get_elapsed_ticks(&monitor_end_time);
 
 	_task_start_preemption();
 
 
-	// Calculate our running time and overhead (try to be quick since not counting)
+	// Calculate overhead with update run time (be quick since not timing)
 	_time_diff_ticks(&monitor_end_time, monitor_start_time, &monitor_run_time);
 
-	double update_time = TICKS_TO_DOUBLE(monitor_run_time);
-	// calc overhead
-	overhead_samples[MOVING_AVG_COUNT-1] = update_time/total_time;
+	// Time including
+	double total_overhead_time =
+			TICKS_TO_DOUBLE(monitor_run_time) + extern_overhead_time;
+	// calculate overhead
+	overhead_samples[MOVING_AVG_COUNT-1] = total_overhead_time/total_time;
 	overhead += overhead_samples[MOVING_AVG_COUNT-1];
-	overhead /= MOVING_AVG_COUNT-1;
+	overhead /= MOVING_AVG_COUNT;
 
-	printf("Monitor overhead:\n"
+	printf("Total overhead:\n"
 			"\tavg: %2.4f%%\tinst: %2.4f%%\n\n", overhead, overhead_samples[MOVING_AVG_COUNT-1]);
 }
 
@@ -129,7 +141,7 @@ void Monitor_task(os_task_param_t task_init_data)
 	const MQX_TICK_STRUCT_PTR timer_period = _mem_alloc(sizeof(MQX_TICK_STRUCT));
 
 	// Setup periodic timer for monitor function
-	_time_init_ticks(timer_period, 0);
+	*timer_period = _mqx_zero_tick_struct;
 	_time_add_msec_to_ticks(timer_period, UPDATE_PERIOD);
 
 	_time_get_elapsed_ticks(start);
@@ -147,7 +159,7 @@ void Monitor_task(os_task_param_t task_init_data)
 	_task_set_priority(0, _sched_get_min_priority(MQX_SCHED_FIFO), &old_prior);
 
 	// Track how often we're running
-	_time_init_ticks(&counter, 0);
+	counter = _mqx_zero_tick_struct;
 	MQX_TICK_STRUCT last_update;
 	MQX_TICK_STRUCT now;
 	bool overflow = FALSE;

@@ -49,6 +49,20 @@
 extern "C" {
 #endif 
 
+/*------------------------------------------------------------------------------
+ * monitor_add_ticks_to_overhead
+ * -----------------------------------------------------------------------------
+ * Arguments:
+ * 	MQX_TICK_STRUCT_PTR diff	Ticks to add to overhead time counter
+ *
+ * Returns:
+ * 	_mqx_uint					MQX_OK if successful, otherwise error
+ *
+ * 	Adds the ticks in `diff` to the monitor's overhead counter.
+ * 	Ignores the HW_TICKS field.
+ */
+void monitor_add_overhead_ticks(MQX_TICK_STRUCT_PTR diff);
+
 /*
 ** ===================================================================
 **     Callback    : Monitor_task

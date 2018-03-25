@@ -57,27 +57,32 @@ extern "C" {
 */
 void Generator_task(os_task_param_t task_init_data)
 {
-	MQX_TICK_STRUCT current_ticks;
-	TIME_STRUCT current_time;
-	MQX_TICK_STRUCT release_times[PERIODIC_TASKS];
-	bool overflow = FALSE;
+  MQX_TICK_STRUCT start_ticks;
+  MQX_TICK_STRUCT end_ticks;
+  MQX_TICK_STRUCT diff_ticks;
+  MQX_TICK_STRUCT release_times[PERIODIC_TASKS];
+  bool overflow = FALSE;
 
-	while (1) {
-		_time_get_elapsed_ticks(&current_ticks);
-		for (uint8_t i=0; i < PERIODIC_TASKS; i++) {
+  while (1) {
+	_task_stop_preemption();	// don't let scheduler interrupt for timing
+	_time_get_elapsed_ticks(&start_ticks);
+	for (uint8_t i=0; i < PERIODIC_TASKS; i++) {
 
-			int32_t elapsed = _time_diff_milliseconds(
-					&current_ticks, &release_times[i], &overflow);
+		int32_t elapsed = _time_diff_milliseconds(
+				&start_ticks, &release_times[i], &overflow);
 
-			if (overflow | (elapsed > periodic_tasks[i].period)) {
-				_time_get_elapsed_ticks(&release_times[i]);
-
-				_ticks_to_time(&current_ticks, &current_time);
-				dd_tcreate(i, periodic_tasks[i].period);
-
-			}
+		if (overflow | (elapsed > periodic_tasks[i].period)) {
+			_time_get_elapsed_ticks(&release_times[i]);
+			dd_tcreate(i, periodic_tasks[i].period);
 		}
 	}
+	_time_get_elapsed_ticks(&end_ticks);
+	_time_diff_ticks(&end_ticks, &start_ticks, &diff_ticks);
+	monitor_add_overhead_ticks(&diff_ticks);
+
+	_task_start_preemption();	// done with timing
+	_time_delay(1);				// wait for at least a millisecond (update res)
+  }
 }
 
 /* END generator_tasks */

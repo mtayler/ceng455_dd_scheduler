@@ -53,49 +53,61 @@ static MUTEX_STRUCT tasks_m;
 */
 void Scheduler_task(os_task_param_t task_init_data)
 {
-	// Initialize mutexes
-	_mutex_init(&tasks_m, &task_m_attr);
+  // Initialize mutexes
+  _mutex_init(&tasks_m, &task_m_attr);
 
-	// Create the message pools
-	scheduler_resp_pool = _msgpool_create(
-			sizeof(SCHEDULER_RESP_MSG), INIT_MESSAGES, GROW_MESSAGES, 0);
+  // Create the message pools
+  scheduler_resp_pool = _msgpool_create(
+		  sizeof(SCHEDULER_RESP_MSG), INIT_MESSAGES, GROW_MESSAGES, 0);
 
-	scheduler_msg_q = _msgq_open(SCHEDULER_QID, 0);
-
-	_sched_yield(); // Allow other tasks to initialize
+  scheduler_msg_q = _msgq_open(SCHEDULER_QID, 0);
   
-	while (1) {
-		SCHEDULER_RQST_MSG_PTR msg = _msgq_receive(scheduler_msg_q, 0);
+  SCHEDULER_RQST_MSG_PTR msg;
 
-		if (msg) {
-			switch(msg->RQST) {
-				case CreateTask:
-					sched_create_task(msg);
-					break;
-				case DeleteTask:
-					sched_delete_task(msg);
-					break;
-				case TaskList:
-					sched_task_list(msg);
-					break;
-				case OverdueTaskList:
-					sched_overdue_task_list(msg);
-					break;
-				default:
-					_msg_free(msg);
-					SCHEDULER_RESP_MSG_PTR resp = _msg_alloc(scheduler_resp_pool);
-					if (resp) {
-						resp->HEADER.TARGET_QID = msg->HEADER.SOURCE_QID;
-						resp->HEADER.SOURCE_QID = scheduler_msg_q;
-						resp->HEADER.SIZE = sizeof(SCHEDULER_RESP_MSG);
-						resp->result = MQX_EINVAL;
+  // Overhead time tracking
+  MQX_TICK_STRUCT start_ticks;
+  MQX_TICK_STRUCT end_ticks;
+  MQX_TICK_STRUCT diff_ticks;
 
-						_msgq_send(resp);
-					}
-					break;
+  while (1) {
+	// we're the highest priority task so don't worry about preemption
+	_time_get_elapsed_ticks(&start_ticks);
+
+	msg = _msgq_receive(scheduler_msg_q, 0);
+
+	if (msg) {
+		switch(msg->RQST) {
+		case CreateTask:
+			sched_create_task(msg);
+			break;
+		case DeleteTask:
+			sched_delete_task(msg);
+			break;
+		case TaskList:
+			sched_task_list(msg);
+			break;
+		case OverdueTaskList:
+			sched_overdue_task_list(msg);
+			break;
+		default:
+			_msg_free(msg);
+			SCHEDULER_RESP_MSG_PTR resp = _msg_alloc(scheduler_resp_pool);
+			if (resp) {
+				resp->HEADER.TARGET_QID = msg->HEADER.SOURCE_QID;
+				resp->HEADER.SOURCE_QID = scheduler_msg_q;
+				resp->HEADER.SIZE = sizeof(SCHEDULER_RESP_MSG);
+				resp->result = MQX_EINVAL;
+
+				_msgq_send(resp);
 			}
+			break;
 		}
 	}
+	_time_get_elapsed_ticks(&end_ticks);
+	_time_diff_ticks(&end_ticks, &start_ticks, &diff_ticks);
+	monitor_add_overhead_ticks(&diff_ticks);
+	_sched_yield();
+  }
 }
 
 static void deadline_overdue(_timer_id timer, void * task,
