@@ -95,7 +95,7 @@ static inline void update_monitor(_timer_id timer, void * data,
 	// code which is counted as overhead
 	task_list_ptr active_tasks;
 	task_list_ptr overdue_tasks;
-	_mutex_lock(&tasks_m);
+	assert(_mutex_lock(tasks_m) == MQX_EOK);
 	assert(dd_active_list(&active_tasks) == MQX_OK);
 	assert(dd_overdue_list(&overdue_tasks) == MQX_OK);
 
@@ -114,7 +114,7 @@ static inline void update_monitor(_timer_id timer, void * data,
 	printf("TASKS:\n    %3s  %-7s   %4s %15s %15s  %4s\n",
 			"PRI", "TASK ID", "TYPE", "DEADLINE", "CREATION", "OVER");;
 	print_tasks(active_tasks, overdue_tasks);
-	_mutex_unlock(&tasks_m);
+	assert(_mutex_unlock(tasks_m) == MQX_EOK);
 
 
 	MQX_TICK_STRUCT monitor_run_time;

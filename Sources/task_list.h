@@ -12,14 +12,9 @@
 #include <mutex.h>
 #include <timer.h>
 
-MUTEX_ATTR_STRUCT task_m_attr = {
-		.SCHED_PROTOCOL = MUTEX_PRIO_INHERIT,
-		.VALID = TRUE,
-		.WAIT_PROTOCOL = MUTEX_PRIORITY_QUEUEING,
-};
-
-// Synchronize between message responses and timer updates
-MUTEX_STRUCT tasks_m;
+// Synchronize between list activity
+MUTEX_ATTR_STRUCT_PTR tasks_m_attr = NULL;
+MUTEX_STRUCT_PTR tasks_m = NULL;
 
 
 // List of running tasks

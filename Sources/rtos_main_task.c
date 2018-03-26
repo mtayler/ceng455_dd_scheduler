@@ -75,7 +75,11 @@ void main_task(os_task_param_t task_init_data)
   _mqx_uint old_prior;
 
   // Initialize mutexes
-  _mutex_init(&tasks_m, &task_m_attr);
+  tasks_m = _mem_alloc(sizeof(MUTEX_STRUCT));
+  tasks_m_attr = _mem_alloc(sizeof(MUTEX_ATTR_STRUCT));
+  assert(_mutatr_init(tasks_m_attr) == MQX_EOK);
+  assert(_mutatr_set_wait_protocol(tasks_m_attr, MUTEX_PRIORITY_QUEUEING) == MQX_EOK);
+  assert(_mutex_init(tasks_m, tasks_m_attr) == MQX_EOK);
 
   // Init timer component
   _timer_create_component(0, 2048);
