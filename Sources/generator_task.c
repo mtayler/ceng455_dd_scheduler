@@ -47,6 +47,10 @@ extern "C" {
 
 #include "dd_scheduler.h"
 
+#define GENERATOR_INIT_MSGS (0)
+#define GENERATOR_MAX_MSGS (8)
+#define GENERATOR_GROW_MSGS (2)
+
 /*
 ** ===================================================================
 **     Callback    : Generator_task
@@ -64,14 +68,27 @@ void Generator_task(os_task_param_t task_init_data)
   MQX_TICK_STRUCT elapsed;
   MQX_TICK_STRUCT release_times[PERIODIC_TASKS];
 
+  generator_msg_qid = _msgq_open(MSGQ_FREE_QUEUE, 5);
+  assert(generator_msg_qid != MSGQ_NULL_QUEUE_ID);
+
   while (1) {
+	uint32_t tid;
+
 	_task_stop_preemption();	// don't let scheduler interrupt for timing
+
+	GENERATOR_MSG_PTR msg = _msgq_poll(generator_msg_qid);
+	if (msg != NULL) {
+		tid = dd_tcreate(msg->task_template, msg->parameter, msg->deadline);
+		assert (tid != MQX_NULL_TASK_ID);
+		_msg_free(msg);
+	}
+
 	_time_get_elapsed_ticks(&start_ticks);
 	for (uint8_t i=0; i < PERIODIC_TASKS; i++) {
 		_time_diff_ticks(&start_ticks, &release_times[i], &elapsed);
 		if (elapsed.TICKS[0] > periodic_tasks[i].period) {
 			_time_get_elapsed_ticks(&release_times[i]);
-			uint32_t tid = dd_tcreate(i, periodic_tasks[i].period);
+			tid = dd_tcreate(PERIODICTASK_TASK, i, periodic_tasks[i].period);
 			assert(tid != MQX_NULL_TASK_ID);
 		}
 	}

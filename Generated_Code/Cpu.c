@@ -8,7 +8,7 @@
 **     Repository  : KSDK 1.3.0
 **     Datasheet   : K22P121M120SF7RM, Rev. 1, March 24, 2014
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-25, 03:16, # CodeGen: 44
+**     Date/Time   : 2018-03-25, 16:57, # CodeGen: 46
 **     Abstract    :
 **
 **     Settings    :
@@ -117,8 +117,8 @@ void Components_Init(void)
   (void)Monitor_Init();
   /*! Monitor Auto initialization end */                       
   /*! gpio1 Auto initialization start */
-  OSA_InstallIntHandler(PORTE_IRQn,  gpio1_PORTE_IRQHandler);
-  GPIO_DRV_Init(GPIO_InpConfig0,gpio1_OutConfig0);
+  OSA_InstallIntHandler(PORTB_IRQn,  gpio1_PORTB_IRQHandler);
+  GPIO_DRV_Init(gpio1_InpConfig0,gpio1_OutConfig0);
   /*! gpio1 Auto initialization end */
   
   /* ### HardFault "HF1" init code ... */

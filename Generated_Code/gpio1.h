@@ -7,7 +7,7 @@
 **     Version     : Component 1.3.0, Driver 01.00, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-24, 22:43, # CodeGen: 40
+**     Date/Time   : 2018-03-25, 16:57, # CodeGen: 46
 **     Contents    :
 **         GPIO_DRV_Init                - void GPIO_DRV_Init(const gpio_input_pin_user_config_t * inputPins,const...
 **         GPIO_DRV_InputPinInit        - void GPIO_DRV_InputPinInit(const gpio_input_pin_user_config_t * inputPin);
@@ -75,7 +75,7 @@
 
 
 /*! @brief Configuration structure 0 for input pins */
-extern const gpio_input_pin_user_config_t GPIO_InpConfig0[];
+extern const gpio_input_pin_user_config_t gpio1_InpConfig0[];
 
 /*! @brief Configuration structure 0 for output pins */
 extern const gpio_output_pin_user_config_t gpio1_OutConfig0[];

@@ -25,6 +25,8 @@
 
 #define PERIODIC_TASKS (3)
 
+#define DELAY_CONST 5000
+
 struct periodic_task {
 	uint32_t period;
 	uint32_t execution_time;

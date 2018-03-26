@@ -42,6 +42,9 @@ extern "C" {
 
 
 /* User includes (#include below this line is not maintained by Processor Expert) */
+#include "dd_scheduler.h"
+
+#define APERIODIC_EXEC_TIME (1000)
 
 /*
 ** ===================================================================
@@ -55,21 +58,16 @@ extern "C" {
 void Aperiodic_task(os_task_param_t task_init_data)
 {
   /* Write your local variable definition here */
-  
-#ifdef PEX_USE_RTOS
-  while (1) {
-#endif
-    /* Write your code here ... */
-    
-    
-    OSA_TimeDelay(10);                 /* Example code (for task release) */
-   
-    
-    
-    
-#ifdef PEX_USE_RTOS   
-  }
-#endif    
+	GPIO_DRV_ClearPinOutput(LEDRGB_BLUE);
+	GPIO_DRV_ClearPinOutput(LEDRGB_RED);
+	GPIO_DRV_ClearPinOutput(LEDRGB_GREEN);
+	for (uint32_t i=0; i < DELAY_CONST*APERIODIC_EXEC_TIME; i++);
+	GPIO_DRV_SetPinOutput(LEDRGB_BLUE);
+	GPIO_DRV_SetPinOutput(LEDRGB_RED);
+	GPIO_DRV_SetPinOutput(LEDRGB_GREEN);
+
+	uint32_t result = dd_delete(_task_get_id());
+	assert(result == MQX_OK);
 }
 
 /* END os_tasks */

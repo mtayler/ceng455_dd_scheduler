@@ -9,7 +9,18 @@
 #define SOURCES_TASK_LIST_H_
 
 #include <mqx.h>
+#include <mutex.h>
 #include <timer.h>
+
+MUTEX_ATTR_STRUCT task_m_attr = {
+		.SCHED_PROTOCOL = MUTEX_PRIO_INHERIT,
+		.VALID = TRUE,
+		.WAIT_PROTOCOL = MUTEX_PRIORITY_QUEUEING,
+};
+
+// Synchronize between message responses and timer updates
+MUTEX_STRUCT tasks_m;
+
 
 // List of running tasks
 typedef struct task_list {

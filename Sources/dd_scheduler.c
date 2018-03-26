@@ -42,7 +42,7 @@ static SCHEDULER_RQST_MSG_PTR create_scheduler_request(_queue_id * q) {
 	return msg;
 }
 
-uint32_t dd_tcreate(_mqx_uint template_index, time_t deadline) {
+uint32_t dd_tcreate(uint32_t template_index, uint32_t parameter, time_t deadline) {
 	_queue_id local_q;
 	SCHEDULER_RQST_MSG_PTR msg;
 	uint32_t result = MQX_NULL_TASK_ID;
@@ -50,6 +50,7 @@ uint32_t dd_tcreate(_mqx_uint template_index, time_t deadline) {
 	msg = create_scheduler_request(&local_q);
 	msg->RQST = CreateTask;
 	msg->id = template_index;
+	msg->parameter = parameter;
 	msg->deadline = deadline;
 
 	if (_msgq_send(msg)) {

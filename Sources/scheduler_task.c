@@ -9,6 +9,7 @@
 #include "periodic_task.h"
 #include "os_tasks.h"
 #include "task_list.h"
+#include "tick_funcs.h"
 
 #include "Cpu.h"
 #include "Events.h"
@@ -32,17 +33,6 @@ static task_list_ptr overdue_tasks = NULL;
 static _pool_id scheduler_resp_pool;
 static _queue_id scheduler_msg_q;
 
-static MUTEX_ATTR_STRUCT task_m_attr = {
-		.SCHED_PROTOCOL = MUTEX_PRIO_INHERIT,
-		.VALID = TRUE,
-		.WAIT_PROTOCOL = MUTEX_PRIORITY_QUEUEING,
-};
-
-// Synchronize between message responses and timer updates
-static MUTEX_STRUCT tasks_m;
-
-
-
 /*
 ** ===================================================================
 **     Callback    : Scheduler_task
@@ -54,9 +44,6 @@ static MUTEX_STRUCT tasks_m;
 */
 void Scheduler_task(os_task_param_t task_init_data)
 {
-  // Initialize mutexes
-  _mutex_init(&tasks_m, &task_m_attr);
-
   // Create the message pools
   scheduler_resp_pool = _msgpool_create(
 		  sizeof(SCHEDULER_RESP_MSG), INIT_MESSAGES, GROW_MESSAGES, 0);
@@ -115,11 +102,11 @@ static void deadline_overdue(_timer_id timer, void * task,
 		MQX_TICK_STRUCT_PTR time) {
 	task_list_ptr t = (task_list_ptr)task;
 
-	uint64_t now = (uint64_t)*(time->TICKS);
+	uint64_t now = TICKS_VAL(time->TICKS);
 	uint32_t now_hw = time->HW_TICKS;
-	uint64_t c = (uint64_t)*(t->creation_time.TICKS);
+	uint64_t c = TICKS_VAL(t->creation_time.TICKS);
 	uint32_t c_hw = t->creation_time.HW_TICKS;
-	uint64_t dl = (uint64_t)*(t->creation_time.TICKS) + (uint64_t)*(t->deadline.TICKS);
+	uint64_t dl = TICKS_VAL(t->creation_time.TICKS) + TICKS_VAL(t->deadline.TICKS);
 
 	debug("(%llu.%lu) Task '%lu' created at %llu.%lu\n"
 			"\twith type '%lu' is now overdue with deadline %llu.0000\n",
@@ -128,17 +115,16 @@ static void deadline_overdue(_timer_id timer, void * task,
 	// No timer watching task anymore
 	t->timer = TIMER_NULL_ID;
 
-	_mutex_lock(&tasks_m);
 	task_list_ptr deleted_task = delete_task(&active_tasks, t->tid);
 	if (deleted_task == NULL) {
 		debug("Couldn't remove task from active tasks list\n");
 	}
 	add_task(&overdue_tasks, deleted_task);
-	_mutex_unlock(&tasks_m);
 }
 
 static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg) {
-	_mqx_uint id = msg->id;
+	uint32_t id = msg->id;
+	uint32_t parameter = msg->parameter;
 	uint32_t deadline = msg->deadline;
 
 	SCHEDULER_RESP_MSG_PTR resp = _msg_alloc(scheduler_resp_pool);
@@ -151,7 +137,7 @@ static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg) {
 	_msg_free(msg);
 
 	// Create task
-	_task_id tid = _task_create(0, PERIODICTASK_TASK, id);
+	_task_id tid = _task_create(0, id, parameter);
 	resp->result = tid;
 
 	if (resp->result == MQX_NULL_TASK_ID) {
@@ -165,10 +151,10 @@ static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg) {
 		resp->error = _task_get_error();
 	}
 
-	// Set creation and deadline ticks
-	_time_get_elapsed_ticks(&(task->creation_time));
+	// Create task details
 	task->tid = tid;
-	*(task->deadline.TICKS) = (uint64_t)*(task->creation_time.TICKS)+deadline;
+	_time_get_elapsed_ticks(&(task->creation_time));
+	TICKS_VAL(task->deadline.TICKS) = TICKS_VAL(task->creation_time.TICKS) + deadline;
 	task->deadline.HW_TICKS = 0;
 	task->task_type = id;
 
@@ -185,14 +171,10 @@ static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg) {
 	task->timer = timer;
 
 	// Create task list entry
-	_mutex_lock(&tasks_m);
 	add_task(&active_tasks, task);
-	_mutex_unlock(&tasks_m);
 
 	// Assign priorities
-	_mutex_lock(&tasks_m);
 	uint32_t status = update_priorities(active_tasks);
-	_mutex_unlock(&tasks_m);
 
 	resp->error = status;
 	_msgq_send(resp);
@@ -212,7 +194,6 @@ static void sched_delete_task(SCHEDULER_RQST_MSG_PTR msg) {
 	_msg_free(msg);
 
 	// Find task in active or overdue active_tasks and delete
-	_mutex_lock(&tasks_m);
 	task_list_ptr task = delete_task(&active_tasks, id);
 	if (task == NULL) {						// not in active_tasks
 		result = _task_get_error();
@@ -221,7 +202,6 @@ static void sched_delete_task(SCHEDULER_RQST_MSG_PTR msg) {
 			result = _task_get_error();
 		}
 	}
-	_mutex_unlock(&tasks_m);
 
 	// Check if we found and deleted a task, otherwise stop
 	if (task == NULL) {
@@ -240,11 +220,10 @@ static void sched_delete_task(SCHEDULER_RQST_MSG_PTR msg) {
 		}
 	}
 
-	// Free the task
+	// Free the task node memory
 	_mem_free(task);
 
 	// Update priorities
-	_mutex_lock(&tasks_m);
 	result = update_priorities(overdue_tasks);
 	if (result != MQX_OK) {
 		resp->result = result;
@@ -252,7 +231,6 @@ static void sched_delete_task(SCHEDULER_RQST_MSG_PTR msg) {
 		return;
 	}
 	result = update_priorities(active_tasks);
-	_mutex_unlock(&tasks_m);
 
 	resp->result = result;
 	_msgq_send(resp);

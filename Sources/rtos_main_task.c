@@ -46,6 +46,8 @@ extern "C" {
 #include <mqx.h>
 #include <timer.h>
 
+#include "task_list.h"
+
 /* Initialization of Processor Expert components function prototype */
 #ifdef MainTask_PEX_RTOS_COMPONENTS_INIT
 extern void PEX_components_init(void);
@@ -71,6 +73,9 @@ void main_task(os_task_param_t task_init_data)
 
 //  _int_install_unexpected_isr();
   _mqx_uint old_prior;
+
+  // Initialize mutexes
+  _mutex_init(&tasks_m, &task_m_attr);
 
   // Init timer component
   _timer_create_component(0, 2048);

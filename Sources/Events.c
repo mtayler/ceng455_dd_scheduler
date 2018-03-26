@@ -29,6 +29,12 @@
 
 #include "Cpu.h"
 #include "Events.h"
+#include "rtos_main_task.h"
+#include "generator_task.h"
+#include "scheduler_task.h"
+#include "monitor_task.h"
+#include "periodic_task.h"
+#include "os_tasks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,10 +43,11 @@ extern "C" {
 
 /* User includes (#include below this line is not maintained by Processor Expert) */
 #include <stdio.h>
+#include "dd_scheduler.h"
 
 /*
 ** ===================================================================
-**     Interrupt handler : gpio1_PORTE_IRQHandler
+**     Interrupt handler : gpio1_PORTB_IRQHandler
 **
 **     Description :
 **         User interrupt service routine. 
@@ -48,12 +55,21 @@ extern "C" {
 **     Returns     : Nothing
 ** ===================================================================
 */
-void gpio1_PORTE_IRQHandler(void)
+void gpio1_PORTB_IRQHandler(void)
 {
   /* Clear interrupt flag.*/
-  PORT_HAL_ClearPortIntFlag(PORTE_BASE_PTR);
+  PORT_HAL_ClearPortIntFlag(PORTB_BASE_PTR);
   /* Write your code here ... */
-  printf("Interrupt");
+  GENERATOR_MSG_PTR msg = _msg_alloc(scheduler_msg_pool);
+  assert(msg != NULL);
+  msg->HEADER.TARGET_QID = generator_msg_qid;
+  msg->HEADER.SOURCE_QID = MSGQ_NULL_QUEUE_ID;
+  msg->HEADER.SIZE = sizeof(GENERATOR_MSG);
+  msg->task_template = APERIODIC_TASK;
+  msg->parameter = 0;
+  msg->deadline = 600;
+
+  _msgq_send(msg);
 }
 
 /* END Events */

@@ -41,6 +41,7 @@ typedef struct scheduler_request_message {
 	MESSAGE_HEADER_STRUCT HEADER;
 	enum REQUEST RQST;
 	uint32_t id; // template_index or task_id
+	uint32_t parameter;
 	uint32_t deadline;
 } SCHEDULER_RQST_MSG, * SCHEDULER_RQST_MSG_PTR;
 
@@ -56,14 +57,15 @@ typedef struct scheduler_response_message {
  * dd_tcreate		Create a new deadline-driven scheduled task
  * ----------------------------------------------------------------------------
  * Arguments:
- *  _mqx_uint template_index	Task template to use in task creation.
+ *  uint32_t template_index		Task template to use in task creation.
+ *  uin32_t parameter			Parameter to pass task creation.
  * 	time_t deadline				Deadline of the task in absolute time.
  * Returns:
  * 	_task_id					Task ID of the task created or an error.
  *
  * Called by generating tasks to schedule a new periodic task.
  */
-uint32_t dd_tcreate(_mqx_uint template_index, time_t deadline);
+uint32_t dd_tcreate(uint32_t template_index, uint32_t parameter, time_t deadline);
 
 /* ----------------------------------------------------------------------------
  * dd_delete		Delete the task given by task_id

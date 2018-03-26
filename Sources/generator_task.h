@@ -46,9 +46,20 @@
 #include "HF1.h"
 #include "Aperiodic.h"
 
+#include <message.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif 
+
+_queue_id generator_msg_qid;
+
+typedef struct generator_msg {
+	MESSAGE_HEADER_STRUCT HEADER;
+	uint32_t task_template;
+	uint32_t parameter;
+	uint32_t deadline;
+} GENERATOR_MSG, * GENERATOR_MSG_PTR;
 
 /*
 ** ===================================================================

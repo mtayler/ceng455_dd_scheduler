@@ -7,7 +7,7 @@
 **     Version     : Component 1.3.0, Driver 01.00, CPU db: 3.00.000
 **     Repository  : KSDK 1.3.0
 **     Compiler    : GNU C Compiler
-**     Date/Time   : 2018-03-24, 22:43, # CodeGen: 40
+**     Date/Time   : 2018-03-25, 16:57, # CodeGen: 46
 **
 **     Copyright : 1997 - 2015 Freescale Semiconductor, Inc. 
 **     All Rights Reserved.
@@ -55,13 +55,13 @@
 #include "gpio1.h"
 #include <stdbool.h>
 
-const gpio_input_pin_user_config_t GPIO_InpConfig0[] = {
+const gpio_input_pin_user_config_t gpio1_InpConfig0[] = {
   {
     .pinName = BUTTON_SW3,
     .config.isPullEnable = true, 
     .config.pullSelect = kPortPullDown,
     .config.isPassiveFilterEnabled = true,
-    .config.isDigitalFilterEnabled = true,
+    .config.isDigitalFilterEnabled = false,
     .config.interrupt = kPortIntRisingEdge
   },
   {

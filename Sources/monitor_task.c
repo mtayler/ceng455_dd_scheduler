@@ -46,13 +46,10 @@ extern "C" {
 
 #include "dd_scheduler.h"
 #include "task_list.h"
+#include "tick_funcs.h"
 
 #define UPDATE_PERIOD 2000
 #define MOVING_AVG_COUNT 5
-
-#define TICKS_TO_DOUBLE(ticks) ( \
-		((double)((uint64_t)*(ticks.TICKS))*_time_get_hwticks_per_tick() ) \
-			+ ticks.HW_TICKS)
 
 
 static MQX_TICK_STRUCT counter;
@@ -63,22 +60,29 @@ static float overhead_samples[MOVING_AVG_COUNT] = {0};
 
 
 void monitor_add_overhead_ticks(MQX_TICK_STRUCT_PTR diff) {
-	*(overhead_counter.TICKS) += (uint64_t)*(diff->TICKS);
+	*(overhead_counter.TICKS) += TICKS_VAL(diff->TICKS);
 }
 
 static void print_tasks(task_list_ptr active, task_list_ptr overdue) {
 	_mqx_uint priority;
 	_mqx_uint i=0;
-	for (task_list_ptr task = active; i < 1; task=overdue,i++) {
-		while (task != NULL) {
-			_task_get_priority(task->tid, &priority);
-			printf("    %3lu  0x%-5lx   %4lu %8llu.%06lu %8llu.%06lu  %4c\n", priority,
-					task->tid, task->task_type, (uint64_t)*(task->deadline.TICKS),
-					task->deadline.HW_TICKS, (uint64_t)*(task->creation_time.TICKS),
-					task->creation_time.HW_TICKS, i ? 'Y' : 'N');
-			task = task->next_cell;
-		}
+	while (active != NULL) {
+		_task_get_priority(active->tid, &priority);
+		printf("    %3lu  0x%-5lx   %4lu %8llu.%06lu %8llu.%06lu  %4c\n", priority,
+				active->tid, active->task_type, TICKS_VAL(active->deadline.TICKS),
+				active->deadline.HW_TICKS, TICKS_VAL(active->creation_time.TICKS),
+				active->creation_time.HW_TICKS, i ? 'Y' : 'N');
+		active = active->next_cell;
 	}
+	puts("\n");
+	while (overdue != NULL) {
+			_task_get_priority(overdue->tid, &priority);
+			printf("    %3lu  0x%-5lx   %4lu %8llu.%06lu %8llu.%06lu  %4c\n", priority,
+					overdue->tid, overdue->task_type, TICKS_VAL(overdue->deadline.TICKS),
+					overdue->deadline.HW_TICKS, TICKS_VAL(overdue->creation_time.TICKS),
+					overdue->creation_time.HW_TICKS, 'Y');
+			overdue = overdue->next_cell;
+		}
 }
 
 // Helper function to print the monitor tracked stats
@@ -91,6 +95,7 @@ static inline void update_monitor(_timer_id timer, void * data,
 	// code which is counted as overhead
 	task_list_ptr active_tasks;
 	task_list_ptr overdue_tasks;
+	_mutex_lock(&tasks_m);
 	assert(dd_active_list(&active_tasks) == MQX_OK);
 	assert(dd_overdue_list(&overdue_tasks) == MQX_OK);
 
@@ -103,12 +108,13 @@ static inline void update_monitor(_timer_id timer, void * data,
 	// Clear screen and home cursor
 	puts("\033[2J\033[H");
 
-	printf("\n\n\nCURRENT TIME: %8llu.%lu\n", (uint64_t)*(monitor_start_time.TICKS),
+	printf("CURRENT TIME: %8llu.%lu\n", TICKS_VAL(monitor_start_time.TICKS),
 			monitor_start_time.HW_TICKS);
 	// Print task lists
 	printf("TASKS:\n    %3s  %-7s   %4s %15s %15s  %4s\n",
 			"PRI", "TASK ID", "TYPE", "DEADLINE", "CREATION", "OVER");;
 	print_tasks(active_tasks, overdue_tasks);
+	_mutex_unlock(&tasks_m);
 
 
 	MQX_TICK_STRUCT monitor_run_time;
