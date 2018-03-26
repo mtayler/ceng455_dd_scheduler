@@ -104,14 +104,12 @@ task_list_ptr delete_task(task_list_ptr * list, _task_id tid) {
 	return task;
 }
 
-_mqx_uint update_priorities(task_list_ptr list) {
-	_mqx_uint priority;
+_mqx_uint update_priorities(task_list_ptr list, uint32_t start_priority) {
+	_mqx_uint priority = start_priority;
 	_mqx_uint prev_priority;
 
 	assert(_mutex_lock(tasks_m) != MQX_EINVAL);
 
-	// get highest priority below scheduler task
-	_task_get_priority(_task_get_id_from_name(GENERATOR_TASK_NAME), &priority);
 	while (list != NULL) {
 		// increase priority until min priority (run first so higher than gen)
 		if (priority < _sched_get_min_priority(MQX_SCHED_FIFO)) {
@@ -121,10 +119,11 @@ _mqx_uint update_priorities(task_list_ptr list) {
 		_mqx_uint result = _task_set_priority(list->tid, priority, &prev_priority);
 		if (result != MQX_OK) {
 			assert(_mutex_unlock(tasks_m) != MQX_EINVAL);
-			return result;
+			_task_set_error(result);
+			return 0;
 		}
 		list = list->next_cell;
 	}
 	assert(_mutex_unlock(tasks_m) != MQX_EINVAL);
-	return MQX_OK;
+	return priority;
 }

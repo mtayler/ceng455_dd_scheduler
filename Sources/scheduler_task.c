@@ -159,7 +159,7 @@ static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg) {
 	task->task_type = id;
 
 	// Create a timer to check deadline
-	_timer_id timer = _timer_start_oneshot_after_ticks(deadline_overdue, task,
+	_timer_id timer = _timer_start_oneshot_at_ticks(deadline_overdue, task,
 			TIMER_ELAPSED_TIME_MODE, &(task->deadline));
 	if (timer == TIMER_NULL_ID) {
 		_mem_free(task);
@@ -174,9 +174,15 @@ static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg) {
 	add_task(&active_tasks, task);
 
 	// Assign priorities
-	uint32_t status = update_priorities(active_tasks);
+	// get highest priority below scheduler task
+	uint32_t priority;
+	_task_get_priority(_task_get_id_from_name(GENERATOR_TASK_NAME), &priority);
+	priority = update_priorities(overdue_tasks, priority);
+	assert(priority != 0);
+	priority = update_priorities(active_tasks, priority);
+	assert(priority != 0);
 
-	resp->error = status;
+	resp->error = _task_get_error();
 	_msgq_send(resp);
 	return;
 }
@@ -224,13 +230,13 @@ static void sched_delete_task(SCHEDULER_RQST_MSG_PTR msg) {
 	_mem_free(task);
 
 	// Update priorities
-	result = update_priorities(overdue_tasks);
-	if (result != MQX_OK) {
-		resp->result = result;
-		_msgq_send(resp);
-		return;
-	}
-	result = update_priorities(active_tasks);
+	uint32_t priority;
+	// get highest priority below scheduler task
+	_task_get_priority(_task_get_id_from_name(GENERATOR_TASK_NAME), &priority);
+	priority = update_priorities(overdue_tasks, priority);
+	assert(priority != 0);
+	priority = update_priorities(active_tasks, priority);
+	assert(priority != 0);
 
 	resp->result = result;
 	_msgq_send(resp);

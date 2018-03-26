@@ -64,8 +64,19 @@ void monitor_add_overhead_ticks(MQX_TICK_STRUCT_PTR diff) {
 }
 
 static void print_tasks(task_list_ptr active, task_list_ptr overdue) {
-	_mqx_uint priority;
+	_mqx_uint priority = 0;
 	_mqx_uint i=0;
+	while (overdue != NULL) {
+			_task_get_priority(overdue->tid, &priority);
+			printf("    %3lu  0x%-5lx   %4lu %8llu.%06lu %8llu.%06lu  %4c\n", priority,
+					overdue->tid, overdue->task_type, TICKS_VAL(overdue->deadline.TICKS),
+					overdue->deadline.HW_TICKS, TICKS_VAL(overdue->creation_time.TICKS),
+					overdue->creation_time.HW_TICKS, 'Y');
+			overdue = overdue->next_cell;
+	}
+	if (priority != 0) {	// there were overdue tasks
+		puts("\n");			// add a space
+	}
 	while (active != NULL) {
 		_task_get_priority(active->tid, &priority);
 		printf("    %3lu  0x%-5lx   %4lu %8llu.%06lu %8llu.%06lu  %4c\n", priority,
@@ -74,15 +85,6 @@ static void print_tasks(task_list_ptr active, task_list_ptr overdue) {
 				active->creation_time.HW_TICKS, i ? 'Y' : 'N');
 		active = active->next_cell;
 	}
-	puts("\n");
-	while (overdue != NULL) {
-			_task_get_priority(overdue->tid, &priority);
-			printf("    %3lu  0x%-5lx   %4lu %8llu.%06lu %8llu.%06lu  %4c\n", priority,
-					overdue->tid, overdue->task_type, TICKS_VAL(overdue->deadline.TICKS),
-					overdue->deadline.HW_TICKS, TICKS_VAL(overdue->creation_time.TICKS),
-					overdue->creation_time.HW_TICKS, 'Y');
-			overdue = overdue->next_cell;
-		}
 }
 
 // Helper function to print the monitor tracked stats

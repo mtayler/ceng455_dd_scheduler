@@ -73,13 +73,14 @@ task_list_ptr get_task(task_list_ptr list, _task_id tid);
  * update_priorities		Set priority of each task in the list
  * ----------------------------------------------------------------------------
  * Arguments:
- *  task_list_ptr list	Task list to set priorities for.
+ *  task_list_ptr list		Task list to set priorities for.
+ *  uint32_t start_priority	The priority to start assigning after.
  *
  * Returns:
- * 	_mqx_uint				MQX_OK if success, otherwise error.
+ * 	_mqx_uint				The lowest assigned priority or 0 on an error.
  *
  * Sets ascending priorities for each task in the list.
  */
-_mqx_uint update_priorities(task_list_ptr list);
+_mqx_uint update_priorities(task_list_ptr list, uint32_t start_priority);
 
 #endif /* SOURCES_TASK_LIST_H_ */
