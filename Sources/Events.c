@@ -66,7 +66,7 @@ void gpio1_PORTB_IRQHandler(void)
   msg->HEADER.SOURCE_QID = MSGQ_NULL_QUEUE_ID;
   msg->HEADER.SIZE = sizeof(GENERATOR_MSG);
   msg->task_template = APERIODIC_TASK;
-  msg->parameter = 0;
+  msg->parameter = 3;
   msg->deadline = 600;
 
   _msgq_send(msg);

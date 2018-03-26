@@ -156,7 +156,7 @@ static void sched_create_task(SCHEDULER_RQST_MSG_PTR msg) {
 	_time_get_elapsed_ticks(&(task->creation_time));
 	TICKS_VAL(task->deadline.TICKS) = TICKS_VAL(task->creation_time.TICKS) + deadline;
 	task->deadline.HW_TICKS = 0;
-	task->task_type = id;
+	task->task_type = parameter;
 
 	// Create a timer to check deadline
 	_timer_id timer = _timer_start_oneshot_at_ticks(deadline_overdue, task,
