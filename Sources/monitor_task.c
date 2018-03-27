@@ -110,7 +110,7 @@ static inline void update_monitor(_timer_id timer, void * data,
 	// Clear screen and home cursor
 	puts("\033[2J\033[H");
 
-	printf("CURRENT TIME: %8llu.%lu\n", TICKS_VAL(monitor_start_time.TICKS),
+	printf("CURRENT TICKS: %llu.%lu\n", TICKS_VAL(monitor_start_time.TICKS),
 			monitor_start_time.HW_TICKS);
 	// Print task lists
 	printf("TASKS:\n    %3s  %-7s   %4s %15s %15s  %4s\n",
