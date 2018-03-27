@@ -25,17 +25,24 @@
 
 #define PERIODIC_TASKS (3)
 
-#define DELAY_CONST 5000
+#define DELAY_CONST 14500
 
 struct periodic_task {
 	uint32_t period;
 	uint32_t execution_time;
+	uint32_t deadline;
 	enum _gpio1_pinNames pin;
 };
 
 struct periodic_task periodic_tasks[PERIODIC_TASKS] = {
-	  //   1          2          3
-		{600, 215, LEDRGB_RED}, {850, 400, LEDRGB_GREEN}, {2600, 1250, LEDRGB_BLUE},};
+//		 PERIOD     EXEC    DL      LED
+//		{1000,      100,    1000,   LEDRGB_RED},
+//		{500,       300,    500,    LEDRGB_GREEN},
+//		{250,       100,    250,    LEDRGB_BLUE},
+		{1000,      300,    800,    LEDRGB_RED},
+		{1000,      350,    1000,   LEDRGB_GREEN},
+		{300,       50,    	300,    LEDRGB_BLUE}
+};
 
 void PeriodicTask_task(os_task_param_t task_init_data);
 

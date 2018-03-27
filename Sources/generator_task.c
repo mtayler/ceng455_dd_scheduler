@@ -88,7 +88,7 @@ void Generator_task(os_task_param_t task_init_data)
 		_time_diff_ticks(&start_ticks, &release_times[i], &elapsed);
 		if (elapsed.TICKS[0] > periodic_tasks[i].period) {
 			_time_get_elapsed_ticks(&release_times[i]);
-			tid = dd_tcreate(PERIODICTASK_TASK, i, periodic_tasks[i].period);
+			tid = dd_tcreate(PERIODICTASK_TASK, i, periodic_tasks[i].deadline);
 			assert(tid != MQX_NULL_TASK_ID);
 		}
 	}
